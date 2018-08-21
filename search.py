@@ -5,7 +5,7 @@ import random
 from chess.polyglot import zobrist_hash as zhash
 
 
-scores = {'0-1':float("inf"), '1-0':-float("inf"), "1/2-1/2":0}
+scores = {'0-1':-float("inf"), '1-0':float("inf"), "1/2-1/2":0}
 
 def alphabeta(board, depth, alpha, beta, transtable):
     totalnodes = 0
@@ -16,7 +16,12 @@ def alphabeta(board, depth, alpha, beta, transtable):
     #random.shuffle(moves)
     if len(moves) == 0:
         result = board.result()
-        return scores[result], [], 1
+        score = scores[result]
+        if not board.turn:
+            score *= -1
+        return score, [], 1
+    if board.can_claim_draw():
+        return 0, [], 1
     if depth == 0:
         return evaluateBoard(board), [], 1
     ourpv = [moves[0]]
@@ -37,7 +42,7 @@ def alphabeta(board, depth, alpha, beta, transtable):
 
 if __name__ == "__main__":
     starttime = time.time()
-    value, pv, nodes = alphabeta(chess.Board("8/6K1/1p1B1RB1/8/2Q5/2n1kP1N/3b4/4n3 w - - 0 1"), 4, -float("inf"), float("inf"), {})
+    value, pv, nodes = alphabeta(chess.Board("rn5k/ppp1p2p/6p1/1P6/8/r3b3/7K/5q2 b - - 12 52"), 3, -float("inf"), float("inf"), {})
     print(value, pv)
     endtime = time.time()
     print(nodes, endtime-starttime)
