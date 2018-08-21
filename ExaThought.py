@@ -25,7 +25,7 @@ def mainloop():
         if message[0] == "go":
             #only supports go depth
             starttime = time.time()
-            value, pv, nodes = alphabeta(board, int(message[2]), -float("inf"), float("inf"), {})
+            value, pv, nodes = alphabeta(board, int(message[2]), -float("inf"), float("inf"), {}, {})
             endtime = time.time()
             totaltime = int((endtime - starttime) * 1000)
             pvstring = ""

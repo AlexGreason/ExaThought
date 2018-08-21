@@ -7,7 +7,7 @@ from chess.polyglot import zobrist_hash as zhash
 
 scores = {'0-1':-float("inf"), '1-0':float("inf"), "1/2-1/2":0}
 
-def alphabeta(board, depth, alpha, beta, transtable):
+def alphabeta(board, depth, alpha, beta, transtable, killermoves):
     totalnodes = 0
     hash = zhash(board)
     if (hash, depth) in transtable:
@@ -24,10 +24,17 @@ def alphabeta(board, depth, alpha, beta, transtable):
         return 0, [], 1
     if depth == 0:
         return evaluateBoard(board), [], 1
+    if depth in killermoves:
+        cutoffmove = killermoves[depth]
+        try:
+            moves.remove(cutoffmove)
+            moves.insert(0, cutoffmove)
+        except ValueError:
+            pass
     ourpv = [moves[0]]
     for move in moves:
         board.push(move)
-        value, pv, nodes = alphabeta(board, depth - 1, -beta, -alpha, transtable)
+        value, pv, nodes = alphabeta(board, depth - 1, -beta, -alpha, transtable, killermoves)
         totalnodes += nodes
         value *= -1
         board.pop()
@@ -35,6 +42,7 @@ def alphabeta(board, depth, alpha, beta, transtable):
             ourpv = [move] + pv
         alpha = max(alpha, value)
         if alpha >= beta:
+            killermoves[depth] = move
             transtable[(hash, depth)] = beta, ourpv, totalnodes
             return beta, ourpv, totalnodes
     transtable[(hash, depth)] = alpha, ourpv, totalnodes
@@ -42,7 +50,7 @@ def alphabeta(board, depth, alpha, beta, transtable):
 
 if __name__ == "__main__":
     starttime = time.time()
-    value, pv, nodes = alphabeta(chess.Board("rn5k/ppp1p2p/6p1/1P6/8/r3b3/7K/5q2 b - - 12 52"), 3, -float("inf"), float("inf"), {})
+    value, pv, nodes = alphabeta(chess.Board(), 4, -float("inf"), float("inf"), {}, {})
     print(value, pv)
     endtime = time.time()
     print(nodes, endtime-starttime)
