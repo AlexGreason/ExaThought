@@ -2,7 +2,37 @@ import chess
 import random
 import numpy as np
 import pickle
+import collections
 
+def rep_count(board):
+    transposition_key = board._transposition_key()
+    transpositions = collections.Counter()
+    transpositions.update((transposition_key,))
+
+    # Count positions.
+    switchyard = collections.deque()
+    while board.move_stack:
+        move = board.pop()
+        switchyard.append(move)
+
+        if board.is_irreversible(move):
+            break
+
+        transpositions.update((board._transposition_key(),))
+        if transpositions[transposition_key] > 1:
+            break
+
+    while switchyard:
+        board.push(switchyard.pop())
+
+    return transpositions[transposition_key]
+
+def is_drawn(board):
+    if board.can_claim_fifty_moves():
+        return True
+    if rep_count(board) >= 3:
+        return True
+    return False
 
 
 def bitarray_to_numpy(bitarray):

@@ -1,5 +1,5 @@
 import chess
-from eval import evaluateBoard
+from eval import evaluateBoard, is_drawn
 import time
 import random
 from chess.polyglot import zobrist_hash as zhash
@@ -20,8 +20,8 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
         if not board.turn:
             score *= -1
         return score, [], 1
-    if board.can_claim_draw():
-        alpha = max(alpha, 0)
+    if is_drawn(board):
+        return 0, [], 1
     if depth == 0:
         return evaluateBoard(board), [], 1
     if depth in killermoves:
@@ -51,7 +51,7 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
 if __name__ == "__main__":
 
     starttime = time.time()
-    value, pv, nodes = alphabeta(chess.Board("k7/r1pppr2/1p4pp/P5P1/1P5P/4Bb2/1Q3K2/R7 b - - 8 39"), 3, -float("inf"), float("inf"), {}, {})
+    value, pv, nodes = alphabeta(chess.Board("k7/r1pppr2/1p4pp/P5P1/1P5P/4Bb2/1Q3K2/R7 b - - 8 39"), 4, -float("inf"), float("inf"), {}, {})
     print(value, pv)
     endtime = time.time()
     print(nodes, endtime-starttime)
