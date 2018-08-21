@@ -41,6 +41,8 @@ def mainloop():
         if message[0] == "ucinewgame":
             board = chess.Board()
         sys.stdout.flush()
+        if message[0] == "printfen":
+            printandlog(board.fen())
         if message[0] == "quit" or message[0] == "stop":
             return
 

@@ -21,7 +21,7 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
             score *= -1
         return score, [], 1
     if board.can_claim_draw():
-        return 0, [], 1
+        alpha = max(alpha, 0)
     if depth == 0:
         return evaluateBoard(board), [], 1
     if depth in killermoves:
@@ -49,8 +49,9 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
     return alpha, ourpv, totalnodes
 
 if __name__ == "__main__":
+
     starttime = time.time()
-    value, pv, nodes = alphabeta(chess.Board(), 4, -float("inf"), float("inf"), {}, {})
+    value, pv, nodes = alphabeta(chess.Board("k7/r1pppr2/1p4pp/P5P1/1P5P/4Bb2/1Q3K2/R7 b - - 8 39"), 3, -float("inf"), float("inf"), {}, {})
     print(value, pv)
     endtime = time.time()
     print(nodes, endtime-starttime)
