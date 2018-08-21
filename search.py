@@ -19,7 +19,7 @@ def alphabeta(board, depth, alpha, beta, transtable):
         return scores[result], [], 1
     if depth == 0:
         return evaluateBoard(board), [], 1
-    ourpv = []
+    ourpv = [moves[0]]
     for move in moves:
         board.push(move)
         value, pv, nodes = alphabeta(board, depth - 1, -beta, -alpha, transtable)
@@ -27,8 +27,7 @@ def alphabeta(board, depth, alpha, beta, transtable):
         value *= -1
         board.pop()
         if value > alpha or len(ourpv) == 0:
-            pv.insert(0, move)
-            ourpv = pv
+            ourpv = [move] + pv
         alpha = max(alpha, value)
         if alpha >= beta:
             transtable[(hash, depth)] = beta, ourpv, totalnodes

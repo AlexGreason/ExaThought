@@ -45,5 +45,5 @@ def mainloop():
             return
 
 if __name__ == "__main__":
-    logfile = open("log.txt", "a")
+    logfile = open("log.txt", "w")
     mainloop()
