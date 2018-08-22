@@ -3,6 +3,7 @@ from eval import bitarray_to_numpy, diffpieces
 import numpy as np
 import pickle
 from loader import loadfile
+from sklearn import linear_model
 
 def psqtgrad(board, side):
     grad = {}
@@ -113,4 +114,11 @@ def tune():
 
 
 if __name__ == "__main__":
-    tune()
+    pos = data_as_array(1000000)
+    X = [x[0] for x in pos]
+    Y = [x[1] for x in pos]
+    reg = linear_model.Ridge(alpha=1)
+    reg.fit(X, Y)
+    params = reg.coef_
+    params = unflatten(params)
+    pickle.dump(params, open("psqt-1M.dmp", "wb"))
