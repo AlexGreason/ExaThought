@@ -67,15 +67,10 @@ def psqt(board, side):
     sum = 0
     for type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]:
         locations = bitarray_to_numpy(board.pieces_mask(type, side))
-        for rank in range(8):
-            if side:
-                adjrank = rank
-            else:
-                adjrank = -(rank - 7)
-            for file in range(8):
-                sum += PSQTables[type][adjrank][file] * locations[rank][file]
+        if not side:
+            locations = np.flip(locations, axis=0)
+        sum += np.sum(PSQTables[type] * locations)
     return sum
-
 
 PSQTables = \
 {0: array([ 148,  236,  279,  515, 1279]),
