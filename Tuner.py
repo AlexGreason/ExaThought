@@ -49,8 +49,35 @@ def zerosdict():
         result[i] = np.zeros((8, 8), dtype="float32")
     return result
 
+def flatten(dict):
+    result = np.zeros(5 + 6 * 64, dtype=np.float32)
+    result[0:5] = dict[0]
+    for i in range(1, 7):
+        result[5 + (i - 1) * 64: 5 + i * 64] = dict[i].reshape(64)
+    return result
+
+def unflatten(array):
+    dict = {}
+    dict[0] = array[0:5]
+    for i in range(1, 7):
+        dict[i] = array[5 + (i - 1) * 64: 5 + i * 64].reshape((8,8))
+    return dict
+
+def data_as_array(npositions):
+    data = loadfile("/home/exa/Documents/Ethereal-master/FENS/FENS-cleared-10-all", flipscores=True, loadmax=npositions)
+    processed = []
+    i = 0
+    for pos in data:
+        i += 1
+        print(i)
+        board = chess.Board(pos[0])
+        posgrads = flatten(getfeatures(board))
+        searchedeval = pos[2][-1]
+        processed.append((posgrads, searchedeval, pos[1]))
+    return processed
+
 def tune():
-    npositions = 10000
+    npositions = 1000
     data = loadfile("/home/exa/Documents/Ethereal-master/FENS/FENS-cleared-10-all", flipscores=True, loadmax=npositions)
     processed = []
     i = 0
@@ -63,7 +90,8 @@ def tune():
         processed.append((posgrads, searchedeval))
     lr = 0.01
     params = zerosdict()
-    for j in range(2):
+    params[0] = np.array([100, 300, 300, 500, 900], dtype="float32")
+    while True:
         error= 0
         grads = zerosdict()
         i = 0
@@ -73,14 +101,14 @@ def tune():
                 print(i)
             eval = calceval(pos[0], params)
             error += abs(eval - pos[1])
-            for key in grads:
+            for key in [1]:
                 grads[key] += (pos[1] - eval) * pos[0][key]
-        for key in params:
-            params[key] -= grads[key] * lr * (1/len(processed))
-        file = open("psqt.dmp", "wb")
+        for key in [1]:
+            params[key] += grads[key] * lr * (1/len(processed))
+        file = open("psqt-tmp.dmp", "wb")
         pickle.dump(params, file)
         print("Total error ", error)
-        print(params)
+        print(params[1])
 
 
 

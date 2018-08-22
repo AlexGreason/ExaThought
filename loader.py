@@ -10,7 +10,7 @@ def loadfile(file, threshold=100000, flipscores=False, loadmax=float("inf")):
             scorelist = [int(x) for x in scorelist]
             board, side, castling, dash, halfmove, turn, winner = fen.split(" ")
             fen = "{0} {1} {2} - {3} {4}".format(board, side, castling, halfmove, turn)
-            if turn == 'b' and flipscores:
+            if side == 'b' and flipscores:
                 scorelist = [-x for x in scorelist]
             if abs(scorelist[-1]) <= threshold:
                 result.append((fen, winner, scorelist))

@@ -32,7 +32,7 @@ def mainloop():
             for move in pv:
                 pvstring += " " + str(move)
             printandlog("info depth %d nodes %d nps %d tbhits 0 score cp %d time %d pv%s\n" %
-                  (int(message[2]), nodes, int(nodes/(totaltime/1000)), value * 100, totaltime, pvstring))
+                  (int(message[2]), nodes, int(nodes/(totaltime/1000)), value, totaltime, pvstring))
             printandlog("bestmove " + str(pv[0]) + "\n")
         if message[0] == "uci":
             printandlog("id name ExaThought v0.0.1" + "\n")

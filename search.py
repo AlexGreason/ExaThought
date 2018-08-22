@@ -51,7 +51,7 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
 if __name__ == "__main__":
 
     starttime = time.time()
-    value, pv, nodes = alphabeta(chess.Board("k7/r1pppr2/1p4pp/P5P1/1P5P/4Bb2/1Q3K2/R7 b - - 8 39"), 4, -float("inf"), float("inf"), {}, {})
+    value, pv, nodes = alphabeta(chess.Board("rnbqkbnr/pppppppp/8/8/2P5/8/PP1PPPPP/RNBQKBNR b KQkq - 0 1"), 4, -float("inf"), float("inf"), {}, {})
     print(value, pv)
     endtime = time.time()
     print(nodes, endtime-starttime)
