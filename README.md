@@ -1,2 +1,2 @@
 # ExaThought
-An extremely low-quality python-based chess engine using python-chess for board representation and move generation. Thrown together on a whim.
+An extremely low-quality java-based chess engine using chesspresso for board representation and move generation. Thrown together on a whim.
