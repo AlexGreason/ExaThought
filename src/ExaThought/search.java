@@ -101,6 +101,7 @@ class search {
         return result;
     }
 
+
     static class searchResult{
         int eval;
         ArrayList<Short> pv = new ArrayList<>();
@@ -141,6 +142,11 @@ class search {
                 sb.append(" ");
             }
             return sb.toString();
+        }
+
+        String bestmove(){
+            short move = pv.get(0);
+            return Chess.sqiToStr(getFromSqi(move)) + Chess.sqiToStr(getToSqi(move));
         }
     }
 

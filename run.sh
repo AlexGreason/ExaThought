@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-source activate 3.6tf
-python ExaThought.py
+java -jar ./out/artifacts/ExaThought_jar/ExaThought.jar
+

@@ -67,6 +67,7 @@ public class UCI {
                 search.searchResult val = search.alphabeta(currpos, depth, -128000, 128000, new HashMap<>(), new HashMap<>());
                 long elapsedtime = System.currentTimeMillis() - starttime;
                 System.out.println(val.infostring(depth, elapsedtime));
+                System.out.println("bestmove " + val.bestmove());
                 break;
             case "uci":
                 System.out.println("id name ExaThought v0.0.1");
