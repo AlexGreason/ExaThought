@@ -58,12 +58,25 @@ def evaluateBoard(board):
     eval += rookval * diffpieces(board, chess.ROOK)
     eval += queenval * diffpieces(board, chess.QUEEN)
 
-    eval += psqt(board, board.turn)
-    eval -= psqt(board, not board.turn)
+    for type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]:
+        val = psqt(board, type)
+        eval += val
     #eval +=  # tempo
     return eval
 
-def psqt(board, side):
+def psqt(board, type):
+    sum = 0
+    locations1 = bitarray_to_numpy(board.pieces_mask(type, board.turn))
+    locations2 = bitarray_to_numpy(board.pieces_mask(type, not board.turn))
+    if not board.turn:
+        locations1 = np.flip(locations1, axis=0)
+    else:
+        locations2 = np.flip(locations2, axis=0)
+    sum += np.sum(PSQTables[type] * locations1)
+    sum -=  np.sum(PSQTables[type] * locations2)
+    return sum
+
+def psqt_old(board, side):
     sum = 0
     for type in [chess.PAWN, chess.KNIGHT, chess.BISHOP, chess.ROOK, chess.QUEEN, chess.KING]:
         locations = bitarray_to_numpy(board.pieces_mask(type, side))
@@ -134,6 +147,5 @@ PSQTables = \
 #loadtables()
 
 if __name__ == "__main__":
-    a = chess.Board()
-    a.push_uci("c2c4")
+    a = chess.Board("rnbqkbnr/ppp1pppp/8/3p4/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2")
     print(evaluateBoard(a))

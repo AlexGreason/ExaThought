@@ -13,6 +13,7 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
     if (hash, depth) in transtable:
         return transtable[(hash, depth)]
     moves = list(board.generate_legal_moves())
+    moves.sort(key=lambda x: board.is_capture(x), reverse=True)
     #random.shuffle(moves)
     if len(moves) == 0:
         result = board.result()
@@ -42,16 +43,34 @@ def alphabeta(board, depth, alpha, beta, transtable, killermoves):
             ourpv = [move] + pv
         alpha = max(alpha, value)
         if alpha >= beta:
-            killermoves[depth] = move
+            if not board.is_capture(move):
+                killermoves[depth] = move
             transtable[(hash, depth)] = beta, ourpv, totalnodes
             return beta, ourpv, totalnodes
     transtable[(hash, depth)] = alpha, ourpv, totalnodes
     return alpha, ourpv, totalnodes
 
+def perft(board, depth):
+    if depth <= 0:
+        return 1
+    sum = 0
+    for move in board.generate_legal_moves():
+        board.push(move)
+        sum += perft(board, depth - 1)
+        board.pop()
+    return sum
+
 if __name__ == "__main__":
 
     starttime = time.time()
     value, pv, nodes = alphabeta(chess.Board(), 5, -float("inf"), float("inf"), {}, {})
-    print(value, pv)
-    endtime = time.time()
-    print(nodes, endtime-starttime)
+    print(value, pv, nodes)
+    #depth = 5
+    #board = chess.Board()
+    #perftn = perft(board, depth)
+    #endtime = time.time()
+    #time = int((endtime - starttime) * 1000)
+    #print("Perft ", depth, ": ", perftn, ", took ", time, " milliseconds")
+    #print(nodes, endtime-starttime)
+
+    """Python: "Perft 5 : 4865609 , took 41591 milliseconds" Java: "Perft 5: 4865609, took 400 milliseconds"""
