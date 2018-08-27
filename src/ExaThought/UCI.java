@@ -5,20 +5,19 @@ import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.Position;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class UCI {
 
     private Position currpos;
     private Scanner input;
+    private Deque<Long> history;
 
     UCI(){
         currpos = new Position();
         currpos.setStart();
         input = new Scanner(System.in);
+        history = new ArrayDeque<>();
     }
 
 
@@ -73,7 +72,12 @@ public class UCI {
                 for(int i = 3; i < messagelist.size(); i++){
                     String token = messagelist.get(i);
                     short move = ucitoMove(token);
+                    history.addFirst(currpos.getHashCode());
                     currpos.doMove(move);
+                    if(currpos.getHalfMoveClock() == 0){
+                        history.clear();
+                    }
+
                     //System.out.println(currpos.getFEN());
                 }
                 break;
@@ -81,9 +85,9 @@ public class UCI {
                 int depth = Integer.parseInt(messagelist.get(2));
                 HashMap<Long, search.bestMoveEntry> hashtable = new HashMap<>();
                 long starttime = System.currentTimeMillis();
-                search.searchResult val = search.alphabeta(currpos, 1, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable);
+                search.searchResult val = search.alphabeta(currpos, 1, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
                 for(int i = 2; i <= depth; i++) {
-                    val = search.alphabeta(currpos, i, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable);
+                    val = search.alphabeta(currpos, i, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
                     long elapsedtime = System.currentTimeMillis() - starttime;
                     System.out.println(val.infostring(i, elapsedtime));
                 }

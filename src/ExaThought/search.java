@@ -5,8 +5,11 @@ import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.Position;
 
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import ExaThought.eval;
 
 import javax.naming.directory.SearchResult;
@@ -30,7 +33,8 @@ class search {
         return sum;
     }
 
-    private static ArrayList<Short> moveordering(Position board, int depth, HashMap<Integer, Short> killermoves){
+    private static ArrayList<Short> moveordering(Position board, int depth, HashMap<Integer, Short> killermoves, HashMap<Long, bestMoveEntry>bestmoves){
+        long boardhash = board.getHashCode();
         ArrayList<Short> moves = new ArrayList<Short>();
         short[] notcapturemoves = board.getAllNonCapturingMoves();
         short[] capturemoves = board.getAllCapturingMoves();
@@ -47,11 +51,20 @@ class search {
                 moves.add(0, killermove);
             }
         }
+        if(bestmoves.containsKey(boardhash)){
+            short bestmove = bestmoves.get(boardhash).bestmove;
+            int index = moves.indexOf(bestmove);
+            if(index != -1){
+                moves.remove(index);
+                moves.add(0, bestmove);
+            }
+        }
         return moves;
     }
 
     static searchResult alphabeta(Position board, int depth, int alpha, int beta,
-                                  HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves, HashMap<Long, bestMoveEntry>bestmoves) throws IllegalMoveException{
+                                  HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves,
+                                  HashMap<Long, bestMoveEntry>bestmoves, Deque<Long> history) throws IllegalMoveException{
         searchResult result = new searchResult();
         long boardhash = board.getHashCode();
         tableHash hash = new tableHash(boardhash, depth);
@@ -61,29 +74,39 @@ class search {
             return transtable.get(hash);
         }
         result.nodes = 1;
+        if(history.contains(boardhash)){
+            //at least a twofold
+
+            Iterator<Long> it = history.iterator();
+            short count = 0;
+            for(long tmp = it.next(); it.hasNext(); tmp = it.next()){
+                if(tmp == boardhash){
+                    count++;
+                }
+            }
+            if(count >=2){
+                result.eval = 0;
+                return result;
+            }
+        }
+        history.addFirst(boardhash);
         if(board.isTerminal()){
             result.eval = eval.scoreTerminal(board);
+            history.removeFirst();
             return result;
         }
         if( depth == 0){
             result.eval = eval.evaluateBoard(board);
+            history.removeFirst();
             return result;
         }
-        ArrayList<Short> moves = moveordering(board, depth, killermoves);
-        if(bestmoves.containsKey(boardhash)){
-            short bestmove = bestmoves.get(boardhash).bestmove;
-            int index = moves.indexOf(bestmove);
-            if(index != -1){
-                moves.remove(index);
-                moves.add(0, bestmove);
-            }
-        }
+        ArrayList<Short> moves = moveordering(board, depth, killermoves, bestmoves);
         ArrayList<Short> pv = new ArrayList<>();
         pv.add(moves.get(0));
         for(Short move: moves){
             board.doMove(move);
 
-            searchResult val = alphabeta(board, depth-1, -beta, -alpha, transtable, killermoves, bestmoves);
+            searchResult val = alphabeta(board, depth-1, -beta, -alpha, transtable, killermoves, bestmoves, history);
 
             board.undoMove();
             val.eval *= -1;
@@ -94,16 +117,17 @@ class search {
                 alpha = val.eval;
             }
             if(alpha >= beta){
-                if(!Move.isCapturing(move)){
+                if(!Move.isCapturing(move)) {
                     killermoves.put(depth, move);
-                    result.eval = beta;
-                    result.pv = pv;
-                    transtable.put(hash, result);
-                    if(!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
-                        bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
-                    }
-                    return result;
                 }
+                result.eval = beta;
+                result.pv = pv;
+                transtable.put(hash, result);
+                if(!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
+                    bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
+                }
+                history.removeFirst();
+                return result;
             }
         }
         result.pv = pv;
@@ -112,6 +136,7 @@ class search {
         if(!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
             bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
         }
+        history.removeFirst();
         return result;
     }
 

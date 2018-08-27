@@ -127,7 +127,7 @@ public class eval {
         if(board.getToPlay() != Chess.WHITE){
             eval *= -1;
         }
-        eval += 100; //tempo
+        eval += 50; //tempo
         return eval;
     }
 }
