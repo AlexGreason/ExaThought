@@ -50,22 +50,6 @@ class search {
         return moves;
     }
 
-    private static ArrayList<Short> qsearchmoveordering(Position board, int depth, HashMap<Integer, Short> killermoves){
-        ArrayList<Short> moves = new ArrayList<Short>();
-        short[] capturemoves = board.getAllCapturingMoves();
-        for(short cmove : capturemoves){
-            moves.add(cmove);
-        }
-        if(killermoves.containsKey(depth)){
-            Short killermove = killermoves.get(depth);
-            boolean islegal = moves.remove(killermove);
-            if(islegal){
-                moves.add(0, killermove);
-            }
-        }
-        return moves;
-    }
-
     static searchResult alphabeta(Position board, int depth, int alpha, int beta,
                                   HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves, HashMap<Long, bestMoveEntry>bestmoves) throws IllegalMoveException{
         searchResult result = new searchResult();
@@ -128,51 +112,6 @@ class search {
         if(!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
             bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
         }
-        return result;
-    }
-
-    static searchResult qSearch(Position board, int depth, int alpha, int beta, HashMap<Long, searchResult> transtable, HashMap<Integer, Short> killermoves) throws IllegalMoveException {
-        searchResult result = new searchResult();
-        long boardhash = board.getHashCode();
-        tableHash hash = new tableHash(boardhash, depth);
-        if(transtable.containsKey(hash)){
-            searchResult tableentry = transtable.get(hash);
-            tableentry.nodes = 1;
-            return transtable.get(hash);
-        }
-        result.nodes = 1;
-        if(board.isTerminal()){
-            result.eval = eval.scoreTerminal(board);
-            return result;
-        }
-        ArrayList<Short> moves = qsearchmoveordering(board, depth, killermoves);
-        ArrayList<Short> pv = new ArrayList<>();
-        pv.add(moves.get(0));
-        for(Short move: moves){
-            board.doMove(move);
-
-            searchResult val = qSearch(board, depth+1, -beta, -alpha, transtable, killermoves);
-
-            board.undoMove();
-            val.eval *= -1;
-            result.nodes += val.nodes;
-            if(val.eval > alpha){
-                pv = (ArrayList<Short>) val.pv.clone();
-                pv.add(0, move);
-                alpha = val.eval;
-            }
-            if(alpha >= beta){
-                killermoves.put(depth, move);
-                result.eval = beta;
-                result.pv = pv;
-                transtable.put(boardhash, result);
-                return result;
-
-            }
-        }
-        result.pv = pv;
-        result.eval = alpha;
-        transtable.put(boardhash, result);
         return result;
     }
 
