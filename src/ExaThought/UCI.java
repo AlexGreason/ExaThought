@@ -31,8 +31,8 @@ public class UCI {
         int tosquare = Chess.strToSqi(stosquare);
         boolean capturing = currpos.getStone(tosquare) != 0;
         if(move.length() == 4) {
-            boolean king = Math.abs(currpos.getStone(fromsquare)) == Chess.KING;
-            if(king){
+            int piece = Math.abs(currpos.getStone(fromsquare)) ;
+            if(piece == Chess.KING){
                 if(Chess.sqiToCol(fromsquare) == Chess.charToCol('e')) {
                     int col = Chess.sqiToCol(tosquare);
                     if(col == Chess.charToCol('g')){
@@ -41,10 +41,14 @@ public class UCI {
                         return Move.getLongCastle(currpos.getToPlay());
                     }
                 }
+            } else if(piece == Chess.PAWN){
+                if((Chess.sqiToCol(fromsquare) != Chess.sqiToCol(tosquare)) && !capturing){
+                    return Move.getEPMove(fromsquare, tosquare);
+                }
             }
             return Move.getRegularMove(fromsquare, tosquare, capturing);
         } else {
-            int promotion = Chess.charToPiece(move.charAt(4));
+            int promotion = Chess.charToPiece(Character.toUpperCase(move.charAt(4)));
             return Move.getPawnMove(fromsquare, tosquare, capturing, promotion);
         }
     }
