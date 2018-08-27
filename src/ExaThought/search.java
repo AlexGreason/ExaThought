@@ -51,7 +51,7 @@ class search {
     }
 
     static searchResult alphabeta(Position board, int depth, int alpha, int beta,
-                                  HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves) throws IllegalMoveException{
+                                  HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves, HashMap<Long, bestMoveEntry>bestmoves) throws IllegalMoveException{
         searchResult result = new searchResult();
         long boardhash = board.getHashCode();
         tableHash hash = new tableHash(boardhash, depth);
@@ -70,12 +70,20 @@ class search {
             return result;
         }
         ArrayList<Short> moves = moveordering(board, depth, killermoves);
+        if(bestmoves.containsKey(boardhash)){
+            short bestmove = bestmoves.get(boardhash).bestmove;
+            int index = moves.indexOf(bestmove);
+            if(index != -1){
+                moves.remove(index);
+                moves.add(0, bestmove);
+            }
+        }
         ArrayList<Short> pv = new ArrayList<>();
         pv.add(moves.get(0));
         for(Short move: moves){
             board.doMove(move);
 
-            searchResult val = alphabeta(board, depth-1, -beta, -alpha, transtable, killermoves);
+            searchResult val = alphabeta(board, depth-1, -beta, -alpha, transtable, killermoves, bestmoves);
 
             board.undoMove();
             val.eval *= -1;
@@ -91,6 +99,9 @@ class search {
                     result.eval = beta;
                     result.pv = pv;
                     transtable.put(hash, result);
+                    if(!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
+                        bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
+                    }
                     return result;
                 }
             }
@@ -98,7 +109,20 @@ class search {
         result.pv = pv;
         result.eval = alpha;
         transtable.put(hash, result);
+        if(!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
+            bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
+        }
         return result;
+    }
+
+    static class bestMoveEntry{
+        public short bestmove;
+        public int depth;
+
+        bestMoveEntry(short move, int depth){
+            bestmove = move;
+            depth = depth;
+        }
     }
 
 

@@ -21,5 +21,6 @@ public class ExaThought {
         //System.out.println(Integer.parseInt("3") + 1);
         UCI ucihandler = new UCI();
         ucihandler.handleloop();
+        //info depth 8 nodes 7718355 nps 559909 tbhits 0 score cp 22 time 13785 pv e2e4 b8c6 b1c3 e7e6 d1h5 g7g6 h5g4 d8h4
     }
 }

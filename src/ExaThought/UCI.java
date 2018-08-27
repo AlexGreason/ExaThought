@@ -14,11 +14,13 @@ public class UCI {
 
     private Position currpos;
     private Scanner input;
+    private HashMap<Long, search.bestMoveEntry> hashtable;
 
     UCI(){
         currpos = new Position();
         currpos.setStart();
         input = new Scanner(System.in);
+        hashtable = new HashMap<>();
     }
 
 
@@ -63,10 +65,14 @@ public class UCI {
                 break;
             case "go":
                 int depth = Integer.parseInt(messagelist.get(2));
+
                 long starttime = System.currentTimeMillis();
-                search.searchResult val = search.alphabeta(currpos, depth, -128000, 128000, new HashMap<>(), new HashMap<>());
-                long elapsedtime = System.currentTimeMillis() - starttime;
-                System.out.println(val.infostring(depth, elapsedtime));
+                search.searchResult val = search.alphabeta(currpos, 1, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable);
+                for(int i = 2; i <= depth; i++) {
+                    val = search.alphabeta(currpos, i, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable);
+                    long elapsedtime = System.currentTimeMillis() - starttime;
+                    System.out.println(val.infostring(i, elapsedtime));
+                }
                 System.out.println("bestmove " + val.bestmove());
                 break;
             case "uci":
