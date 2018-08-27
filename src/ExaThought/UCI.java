@@ -14,13 +14,11 @@ public class UCI {
 
     private Position currpos;
     private Scanner input;
-    private HashMap<Long, search.bestMoveEntry> hashtable;
 
     UCI(){
         currpos = new Position();
         currpos.setStart();
         input = new Scanner(System.in);
-        hashtable = new HashMap<>();
     }
 
 
@@ -29,10 +27,21 @@ public class UCI {
         String sfromsquare = move.substring(0, 2);
         String stosquare = move.substring(2, 4);
 
-            int fromsquare = Chess.strToSqi(sfromsquare);
-            int tosquare = Chess.strToSqi(stosquare);
-            boolean capturing = currpos.getStone(tosquare) != 0;
+        int fromsquare = Chess.strToSqi(sfromsquare);
+        int tosquare = Chess.strToSqi(stosquare);
+        boolean capturing = currpos.getStone(tosquare) != 0;
         if(move.length() == 4) {
+            boolean king = Math.abs(currpos.getStone(fromsquare)) == Chess.KING;
+            if(king){
+                if(Chess.sqiToCol(fromsquare) == Chess.charToCol('e')) {
+                    int col = Chess.sqiToCol(tosquare);
+                    if(col == Chess.charToCol('g')){
+                        return Move.getShortCastle(currpos.getToPlay());
+                    } else if(col == Chess.charToCol('c')) {
+                        return Move.getLongCastle(currpos.getToPlay());
+                    }
+                }
+            }
             return Move.getRegularMove(fromsquare, tosquare, capturing);
         } else {
             int promotion = Chess.charToPiece(move.charAt(4));
@@ -61,11 +70,12 @@ public class UCI {
                     String token = messagelist.get(i);
                     short move = ucitoMove(token);
                     currpos.doMove(move);
+                    //System.out.println(currpos.getFEN());
                 }
                 break;
             case "go":
                 int depth = Integer.parseInt(messagelist.get(2));
-
+                HashMap<Long, search.bestMoveEntry> hashtable = new HashMap<>();
                 long starttime = System.currentTimeMillis();
                 search.searchResult val = search.alphabeta(currpos, 1, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable);
                 for(int i = 2; i <= depth; i++) {
