@@ -146,6 +146,10 @@ class search {
             return result;
         }
         ArrayList<Short> moves = qsearchmoveordering(board, depth, killermoves);
+        if(moves.size() == 0){
+            result.eval = eval.evaluateBoard(board);
+            return result;
+        }
         ArrayList<Short> pv = new ArrayList<>();
         pv.add(moves.get(0));
         for(Short move: moves){
