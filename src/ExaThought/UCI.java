@@ -82,16 +82,30 @@ public class UCI {
                 }
                 break;
             case "go":
-                int depth = Integer.parseInt(messagelist.get(2));
-                HashMap<Long, search.bestMoveEntry> hashtable = new HashMap<>();
-                long starttime = System.currentTimeMillis();
-                search.searchResult val = search.alphabeta(currpos, 1, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
-                for(int i = 2; i <= depth; i++) {
-                    val = search.alphabeta(currpos, i, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
-                    long elapsedtime = System.currentTimeMillis() - starttime;
-                    System.out.println(val.infostring(i, elapsedtime));
+                String gotype = messagelist.get(1);
+                switch(gotype) {
+                    case "depth":
+                        int depth = Integer.parseInt(messagelist.get(2));
+                        HashMap<Long, search.bestMoveEntry> hashtable = new HashMap<>();
+                        long starttime = System.currentTimeMillis();
+                        search.searchResult val = search.alphabeta(currpos, 1, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
+                        for (int i = 2; i <= depth; i++) {
+                            val = search.alphabeta(currpos, i, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
+                            long elapsedtime = System.currentTimeMillis() - starttime;
+                            System.out.println(val.infostring(i, elapsedtime));
+                        }
+                        System.out.println("bestmove " + val.bestmove());
+                        break;
+                    case "wtime":
+                        int timeindex = currpos.getToPlay() == Chess.WHITE ? 2 : 4;
+                        int incindex = currpos.getToPlay() == Chess.WHITE ? 6 : 8;
+                        int time = Integer.parseInt(messagelist.get(timeindex));
+                        int inc = Integer.parseInt(messagelist.get(incindex));
+                        int movetime = inc + time/40;
+                        val = search.moveTime(currpos, movetime, history);
+                        System.out.println("bestmove " + val.bestmove());
+                        break;
                 }
-                System.out.println("bestmove " + val.bestmove());
                 break;
             case "uci":
                 System.out.println("id name ExaThought v0.0.1");
