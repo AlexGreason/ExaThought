@@ -58,6 +58,24 @@ class search {
         return moves;
     }
 
+    static boolean isThreefold(long boardhash, Deque<Long> history){
+        if (history.contains(boardhash)) {
+            //at least a twofold
+
+            Iterator<Long> it = history.iterator();
+            short count = 0;
+            for (long tmp = it.next(); it.hasNext(); tmp = it.next()) {
+                if (tmp == boardhash) {
+                    count++;
+                }
+            }
+            if (count >= 2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static searchResult alphabeta(Position board, int depth, int alpha, int beta,
                                   HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves,
                                   HashMap<Long, bestMoveEntry> bestmoves, Deque<Long> history) throws IllegalMoveException {
@@ -70,20 +88,9 @@ class search {
             return transtable.get(hash);
         }
         result.nodes = 1;
-        if (history.contains(boardhash)) {
-            //at least a twofold
-
-            Iterator<Long> it = history.iterator();
-            short count = 0;
-            for (long tmp = it.next(); it.hasNext(); tmp = it.next()) {
-                if (tmp == boardhash) {
-                    count++;
-                }
-            }
-            if (count >= 2) {
-                result.eval = 0;
-                return result;
-            }
+        if(isThreefold(boardhash, history)){
+            result.eval = 0;
+            return result;
         }
         history.addFirst(boardhash);
         if (board.isTerminal()) {
