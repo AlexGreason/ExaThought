@@ -18,7 +18,8 @@ public class eval {
     }
 
 
-    private static final int[] piecevalues = {148,  236,  279,  515, 1279};
+    //private static final int[] piecevalues = {148,  236,  279,  515, 1279};
+    private static final int[] piecevalues = {100,  300,  300,  500, 900};
 
     private static final int[][][] PSQT =
             {{{  0,   0,   0,   0,   0,   0,   0,   0},
@@ -117,12 +118,12 @@ public class eval {
         eval += piecevalues[3] * diffpieces(board, Chess.ROOK);
         eval += piecevalues[4] * diffpieces(board, Chess.QUEEN);
 
-        eval += findPSQT(board, Chess.PAWN);
-        eval += findPSQT(board, Chess.KNIGHT);
-        eval += findPSQT(board, Chess.BISHOP);
-        eval += findPSQT(board, Chess.ROOK);
-        eval += findPSQT(board, Chess.QUEEN);
-        eval += findPSQT(board, Chess.KING);
+        //eval += findPSQT(board, Chess.PAWN);
+        //eval += findPSQT(board, Chess.KNIGHT);
+        //eval += findPSQT(board, Chess.BISHOP);
+        //eval += findPSQT(board, Chess.ROOK);
+        //eval += findPSQT(board, Chess.QUEEN);
+        //eval += findPSQT(board, Chess.KING);
 
         if(board.getToPlay() != Chess.WHITE){
             eval *= -1;
