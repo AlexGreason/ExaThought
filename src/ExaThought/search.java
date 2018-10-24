@@ -169,7 +169,7 @@ class search {
             i++;
             val = search.alphabeta(currpos, i, -128000, 128000, new HashMap<>(), new HashMap<>(), hashtable, history);
             elapsedtime = System.currentTimeMillis() - starttime + 1;
-            ratio = (double)elapsedtime/((double)prevtime + 1);
+            ratio = (double)elapsedtime/((double)prevtime + 100);
             System.out.println("info string " + + prevtime + " " + elapsedtime + " " + ratio + " " + (1.2*((double)elapsedtime * ratio)) + " " + milliseconds);
             prevtime = elapsedtime;
             if(i >= 3) {

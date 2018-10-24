@@ -68,13 +68,24 @@ public class UCI {
                 System.out.println("readyok");
                 break;
             case "position":
-                currpos.setStart();
-                for(int i = 3; i < messagelist.size(); i++){
+
+                String postype = messagelist.get(1);
+                int startindex = 3;
+                switch(postype) {
+                    case "startpos":
+                        currpos.setStart();
+                        break;
+                    case "fen":
+                        String fen = messagelist.get(2) + " " + messagelist.get(3) + " " + messagelist.get(4) + " " + messagelist.get(5) + " " + messagelist.get(6) + " " + messagelist.get(7);
+                        startindex = 8;
+                        currpos = new Position(fen);
+                }
+                for (int i = startindex; i < messagelist.size(); i++) {
                     String token = messagelist.get(i);
                     short move = ucitoMove(token);
                     history.addFirst(currpos.getHashCode());
                     currpos.doMove(move);
-                    if(currpos.getHalfMoveClock() == 0){
+                    if (currpos.getHalfMoveClock() == 0) {
                         history.clear();
                     }
 
