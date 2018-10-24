@@ -105,6 +105,11 @@ public class UCI {
                         val = search.moveTime(currpos, movetime, history);
                         System.out.println("bestmove " + val.bestmove());
                         break;
+                    case "movetime":
+                        int mtime = Integer.parseInt(messagelist.get(2));
+                        val = search.moveTime(currpos, mtime, history);
+                        System.out.println("bestmove " + val.bestmove());
+                        break;
                 }
                 break;
             case "uci":
@@ -117,6 +122,15 @@ public class UCI {
                 break;
             case "printfen":
                 System.out.println(currpos.getFEN());
+                break;
+            case "usermove":
+                String token = messagelist.get(1);
+                short move = ucitoMove(token);
+                history.addFirst(currpos.getHashCode());
+                currpos.doMove(move);
+                if(currpos.getHalfMoveClock() == 0){
+                    history.clear();
+                }
                 break;
             case "quit":
                 return true;

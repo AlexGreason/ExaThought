@@ -29,7 +29,7 @@ class search {
         return sum;
     }
 
-    private static ArrayList<Short> moveordering(Position board, int depth, HashMap<Integer, Short> killermoves, HashMap<Long, bestMoveEntry> bestmoves) {
+    private static ArrayList<Short> moveordering(Position board, int depth, HashMap<Integer, Short> killermoves, HashMap<Long, bestMoveEntry> bestmoves) throws IllegalMoveException {
         long boardhash = board.getHashCode();
         ArrayList<Short> moves = new ArrayList<Short>();
         short[] notcapturemoves = board.getAllNonCapturingMoves();
@@ -80,6 +80,15 @@ class search {
                                   HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves,
                                   HashMap<Long, bestMoveEntry> bestmoves, Deque<Long> history) throws IllegalMoveException {
         searchResult result = new searchResult();
+        result.nodes = 1;
+        if (board.isTerminal()) {
+            result.eval = eval.scoreTerminal(board);
+            return result;
+        }
+        if (depth == 0) {
+            result.eval = eval.evaluateBoard(board);
+            return result;
+        }
         long boardhash = board.getHashCode();
         tableHash hash = new tableHash(boardhash, depth);
         if (transtable.containsKey(hash)) {
@@ -87,22 +96,11 @@ class search {
             tableentry.nodes = 1;
             return transtable.get(hash);
         }
-        result.nodes = 1;
         if(isThreefold(boardhash, history)){
             result.eval = 0;
             return result;
         }
         history.addFirst(boardhash);
-        if (board.isTerminal()) {
-            result.eval = eval.scoreTerminal(board);
-            history.removeFirst();
-            return result;
-        }
-        if (depth == 0) {
-            result.eval = eval.evaluateBoard(board);
-            history.removeFirst();
-            return result;
-        }
         ArrayList<Short> moves = moveordering(board, depth, killermoves, bestmoves);
         ArrayList<Short> pv = new ArrayList<>();
         pv.add(moves.get(0));
