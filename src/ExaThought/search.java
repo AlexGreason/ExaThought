@@ -5,6 +5,7 @@ import chesspresso.move.IllegalMoveException;
 import chesspresso.move.Move;
 import chesspresso.position.Position;
 
+import javax.naming.directory.SearchResult;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
@@ -26,6 +27,53 @@ class search {
             sum += perft(board, depth - 1);
             board.undoMove();
         }
+        return sum;
+    }
+
+    static long perft_caching(Position board, int depth, HashMap<tableHash, Long> transtable) throws IllegalMoveException {
+        if (depth <= 0) {
+            return 1;
+        }
+        long boardhash = board.getHashCode();
+        tableHash hash = new tableHash(boardhash, depth);
+        if(transtable.containsKey(hash)){
+
+            return transtable.get(hash);
+        }
+
+        long sum = 0;
+        short[] moves = board.getAllMoves();
+        for (short move : moves) {
+            board.doMove(move);
+            sum += perft_caching(board, depth - 1, transtable);
+            board.undoMove();
+        }
+        transtable.put(hash, sum);
+        return sum;
+    }
+
+    static long perft_nocaps(Position board, int depth, HashMap<tableHash, Long> transtable, int startmaterial) throws IllegalMoveException {
+        if(Math.abs(board.getMaterial() - startmaterial) > 200){
+            return 0;
+        }
+        if (depth <= 0) {
+            return 1;
+        }
+        long boardhash = board.getHashCode();
+        tableHash hash = new tableHash(boardhash, depth);
+        if(transtable.containsKey(hash)){
+
+            return transtable.get(hash);
+        }
+
+        long sum = 0;
+        short[] moves = board.getAllMoves();
+        for (short move : moves) {
+            board.doMove(move);
+            sum += perft_nocaps(board, depth - 1, transtable, startmaterial);
+            board.undoMove();
+        }
+        transtable.put(hash, sum);
         return sum;
     }
 
@@ -76,6 +124,14 @@ class search {
         return false;
     }
 
+    static boolean isTwofold(long boardhash, Deque<Long> history){
+        return history.contains(boardhash);
+    }
+
+    static void print(String str){
+        System.out.println(str);
+    }
+
     static searchResult alphabeta(Position board, int depth, int alpha, int beta,
                                   HashMap<tableHash, searchResult> transtable, HashMap<Integer, Short> killermoves,
                                   HashMap<Long, bestMoveEntry> bestmoves, Deque<Long> history) throws IllegalMoveException {
@@ -90,13 +146,7 @@ class search {
             return result;
         }
         long boardhash = board.getHashCode();
-        tableHash hash = new tableHash(boardhash, depth);
-        if (transtable.containsKey(hash)) {
-            searchResult tableentry = transtable.get(hash);
-            tableentry.nodes = 1;
-            return transtable.get(hash);
-        }
-        if(isThreefold(boardhash, history)){
+        if(isTwofold(boardhash, history)){
             result.eval = 0;
             return result;
         }
@@ -110,12 +160,12 @@ class search {
             searchResult val = alphabeta(board, depth - 1, -beta, -alpha, transtable, killermoves, bestmoves, history);
 
             board.undoMove();
-            val.eval *= -1;
+            int eval = val.eval * -1;
             result.nodes += val.nodes;
-            if (val.eval > alpha) {
+            if (eval > alpha) {
                 pv = (ArrayList<Short>) val.pv.clone();
                 pv.add(0, move);
-                alpha = val.eval;
+                alpha = eval;
             }
             if (alpha >= beta) {
                 if (!Move.isCapturing(move)) {
@@ -123,7 +173,6 @@ class search {
                 }
                 result.eval = beta;
                 result.pv = pv;
-                transtable.put(hash, result);
                 if (!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
                     bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
                 }
@@ -133,11 +182,11 @@ class search {
         }
         result.pv = pv;
         result.eval = alpha;
-        transtable.put(hash, result);
         if (!bestmoves.containsKey(boardhash) || bestmoves.get(boardhash).depth < depth) {
             bestmoves.put(boardhash, new bestMoveEntry(pv.get(0), depth));
         }
         history.removeFirst();
+
         return result;
     }
 
@@ -195,6 +244,16 @@ class search {
         int eval;
         ArrayList<Short> pv = new ArrayList<>();
         long nodes;
+        long index;
+        static long maxindex = 0;
+
+        public searchResult(){
+            this.eval = 0;
+            this.pv = new ArrayList<>();
+            this.nodes = 0;
+            this.index = maxindex;
+            maxindex++;
+        }
 
         @Override
         public String toString() {
@@ -254,6 +313,20 @@ class search {
         tableHash(long hash, int depth) {
             this.hash = hash;
             this.depth = depth;
+        }
+
+        @Override
+        public int hashCode(){
+            return (int) (this.hash % Integer.MAX_VALUE) - 13527*this.depth;
+        }
+
+        @Override
+        public boolean equals(Object other){
+            if (getClass() != other.getClass()){
+                return false;
+            }
+            tableHash otherhash = (tableHash) other;
+            return this.hash == otherhash.hash && otherhash.depth == this.depth;
         }
     }
 }

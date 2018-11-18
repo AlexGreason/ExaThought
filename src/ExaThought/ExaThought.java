@@ -10,7 +10,16 @@ public class ExaThought {
 
 
     public static void main(String[] args) throws IllegalMoveException{
-        //Position pos = new Position("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1");
+//        Position pos = new Position("5k2/6p1/5p2/5PPK/P3n2P/3B4/8/4b3 b - - 5 57");
+////        pos.setStart();
+//        long starttime = System.currentTimeMillis();
+//        for(int i = 0; i < 100; i++){
+//            long val  = search.perft_nocaps(pos, i, new HashMap<>(), pos.getMaterial());
+//            long elapsedtime = System.currentTimeMillis() - starttime;
+//            System.out.println(i + " " + val + " " + elapsedtime);
+//
+//        }
+
         //pos.setStart();
         //search.searchResult val = search.moveTime(pos, 10000, new ArrayDeque<>());
         //System.out.println(eval.evaluateBoard(pos));
