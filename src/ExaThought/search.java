@@ -42,7 +42,7 @@ class search {
             System.out.println(transtable.size());
         }
         transtable.put(boardhash, 1L);
-        if (board.isTerminal()) {
+        if (board.isTerminal() || depth < 0) {
             //print("terminal: " + depth);
             transtable.put(boardhash, 1L);
             return 1;
@@ -50,7 +50,7 @@ class search {
         long sum = 1;
         short[] moves = board.getAllMoves();
         for (short move : moves) {
-            if(depth >= 950){
+            if(depth >= 350){
                 print("move: " + move + " depth: " + depth);
             }
             board.doMove(move);

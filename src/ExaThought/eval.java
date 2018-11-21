@@ -34,7 +34,7 @@ public class eval {
 
     static int scoreTerminal(Position board) throws IllegalStateException{
         //need a way to handle insufficient mating material and threefold repetition
-        if(board.isStaleMate() || board.getHalfMoveClock() >= 100){
+        if(board.isStaleMate() || board.getHalfMoveClock() >= 100 || board.isInsufficentMaterial()){
             return 0;
         } else if(board.isMate()){
             return -12800;
