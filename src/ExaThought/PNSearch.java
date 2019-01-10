@@ -12,19 +12,19 @@ import java.util.HashSet;
 import static chesspresso.move.Move.getFromSqi;
 import static chesspresso.move.Move.getToSqi;
 
-public class PNSearch {
+class PNSearch {
 
     PNSnode root;
-    Position rootboard;
-    HashMap<PNSkey, PNSnode> tree;
-    result_enum goal;
-    HashSet<Long> hist;
+    private Position rootboard;
+    private HashMap<PNSkey, PNSnode> tree;
+    private result_enum goal;
+    private HashSet<Long> hist;
 
 
-    public PNSearch(Position startpos, result_enum goal){
+    PNSearch(Position startpos, result_enum goal){
         this.hist = new HashSet<>();
         type_enum root_type = startpos.getToPlay() == Chess.BLACK ? type_enum.AND : type_enum.OR;
-        if(goal == result_enum.BLACK_W || goal == result_enum.BLACK_WD){
+        if(goal == result_enum.BLACK_W){
             root_type = startpos.getToPlay() == Chess.BLACK ? type_enum.OR : type_enum.AND;
         }
         this.root = new PNSnode(startpos.getHashCode(), eval(startpos), root_type, goal);
@@ -35,7 +35,7 @@ public class PNSearch {
         this.goal = goal;
     }
 
-    public void expand(PNSnode child, Position childboard) throws IllegalMoveException {
+    private void expand(PNSnode child, Position childboard) throws IllegalMoveException {
         short[] moves = childboard.getAllMoves();
         child.expanded = true;
         long cpnum = child.type == type_enum.AND ? 0 : Integer.MAX_VALUE;
@@ -61,7 +61,7 @@ public class PNSearch {
         child.dpnum = (int) Math.min(cdpnum, Integer.MAX_VALUE);
     }
 
-    public void step(PNSnode child, Position childboard) throws IllegalMoveException{
+    private void step(PNSnode child, Position childboard) throws IllegalMoveException{
         if(!child.expanded){
             expand(child, childboard);
             return;
@@ -94,6 +94,8 @@ public class PNSearch {
                     bestnode = grandc;
                     bestmove = m;
                 }
+            } else if (secbdpval > grandc.dpnum) {
+                secbdpval = grandc.dpnum;
             }
             if(bestpval > grandc.pnum || (bestmove == 0)){
                 secbpval = bestpval;
@@ -102,6 +104,8 @@ public class PNSearch {
                     bestnode = grandc;
                     bestmove = m;
                 }
+            } else if (secbpval > grandc.pnum) {
+                secbpval = grandc.pnum;
             }
             childboard.undoMove();
         }
@@ -140,13 +144,16 @@ public class PNSearch {
     }
 
 
-    public result_enum search(int nodelimit) throws IllegalMoveException{
+    int search(int nodelimit) throws IllegalMoveException{
         if(rootboard.isTerminal()){
             root.result = eval(rootboard);
-            int pnum = getpnum(root.result, goal);
-            root.pnum = pnum;
-            root.dpnum = getdpnum(pnum);
-            return root.result;
+            root.pnum = getpnum(root.result, goal);
+            root.dpnum = getdpnum(root.result, goal);
+            if (root.dpnum == Integer.MAX_VALUE){
+                return 1;
+            } else {
+                return -1;
+            }
         }
         while(nodelimit > 0 && root.pnum < Integer.MAX_VALUE && root.dpnum < Integer.MAX_VALUE){
             if(root.children % 10000 == 0){
@@ -158,15 +165,15 @@ public class PNSearch {
             //System.out.println("searchstep");
         }
         if (root.pnum < Integer.MAX_VALUE && root.dpnum < Integer.MAX_VALUE){
-            return result_enum.UNKNOWN;
+            return 0;
         } else if (root.dpnum == Integer.MAX_VALUE){
-            return result_enum.TRUE;
+            return 1;
         } else {
-            return result_enum.FALSE;
+            return -1;
         }
     }
 
-    public Short getBestMove(PNSnode child, Position childboard) throws IllegalMoveException{
+    private Short getBestMove(PNSnode child, Position childboard) throws IllegalMoveException{
         short[] moves = childboard.getAllMoves();
         if(moves.length == 0 || !child.expanded){
             return 0;
@@ -196,7 +203,27 @@ public class PNSearch {
         return bestmove;
     }
 
-    public ArrayList<Short> getpv() throws IllegalMoveException{
+    void printChildren(short[] moves) throws IllegalMoveException{
+        Position childboard = rootboard;
+        PNSnode node = root;
+        for(short m : moves) {
+            childboard.doMove(m);
+            long chash = childboard.getHashCode();
+            PNSkey key = new PNSkey(chash, node.index);
+            node = this.tree.get(key);
+        }
+        short[] cmoves = childboard.getAllMoves();
+        for(short m : cmoves) {
+            childboard.doMove(m);
+            long chash = childboard.getHashCode();
+            PNSkey key = new PNSkey(chash, node.index);
+            PNSnode grandc = this.tree.get(key);
+            System.out.println(grandc);
+            childboard.undoMove();
+        }
+    }
+
+    private ArrayList<Short> getpv() throws IllegalMoveException{
         PNSnode node = root;
         Position childboard = new Position(FEN.getFEN(this.rootboard));
         ArrayList<Short> pv = new ArrayList<>();
@@ -211,7 +238,7 @@ public class PNSearch {
         return pv;
     }
 
-    public String printpv() throws IllegalMoveException{
+    String printpv() throws IllegalMoveException{
         ArrayList<Short> pv = getpv();
         StringBuilder sb = new StringBuilder();
         for (Short move : pv) {
@@ -223,10 +250,10 @@ public class PNSearch {
     }
 
     public enum result_enum {
-        BLACK_W, BLACK_WD, D, WHITE_WD, WHITE_W, UNKNOWN, TRUE, FALSE
+        BLACK_W, WHITE_W, D, UNKNOWN
     }
 
-    public result_enum eval(Position board){
+    private result_enum eval(Position board){
         //need a way to handle repetition
         if(board.isStaleMate() || board.getHalfMoveClock() >= 100 || board.isInsufficentMaterial() || hist.contains(board.getHashCode())){
             if( hist.contains(board.getHashCode())){
@@ -246,51 +273,21 @@ public class PNSearch {
         throw new IllegalStateException("scoreTerminal called, but doesn't appear to be terminal");
     }
 
-    public static int getpnum(result_enum val, result_enum goal){
+    private static int getpnum(result_enum val, result_enum goal){
         if (val == result_enum.UNKNOWN){
             return 1;
         }
         if(val == goal){
             return 0;
         }
-        if(goal == result_enum.BLACK_W || goal == result_enum.WHITE_W){
-            if(val == result_enum.BLACK_WD && goal == result_enum.BLACK_W
-                    || val == result_enum.WHITE_WD && goal == result_enum.WHITE_W) {
-                return 1;
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-        if(goal == result_enum.WHITE_WD){
-            if(val == result_enum.WHITE_W || val == result_enum.D){
-                return 0;
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-        if(goal == result_enum.BLACK_WD){
-            if(val == result_enum.BLACK_W || val == result_enum.D){
-                return 0;
-            } else {
-                return Integer.MAX_VALUE;
-            }
-        }
-        // goal must be draw, val must not be draw
-        if(val == result_enum.WHITE_WD || val == result_enum.BLACK_WD){
-            return 1;
-        }
-        // goal must be draw, val must be win (or invalid value)
-        if(val == result_enum.TRUE || val == result_enum.FALSE){
-            throw new IllegalStateException("node value cannot be true or false!");
-        }
         return Integer.MAX_VALUE;
     }
 
-    public static int getdpnum(int pnum){
-        if(pnum == 1){
+    private static int getdpnum(result_enum val, result_enum goal){
+        if (val == result_enum.UNKNOWN){
             return 1;
         }
-        if(pnum == 0){
+        if(val == goal || val == result_enum.D){
             return Integer.MAX_VALUE;
         }
         return 0;
@@ -300,7 +297,7 @@ public class PNSearch {
         AND, OR
     }
 
-    public type_enum invert(type_enum val){
+    private type_enum invert(type_enum val){
         return val == type_enum.AND ? type_enum.OR : type_enum.AND;
     }
 
@@ -315,7 +312,7 @@ public class PNSearch {
         boolean expanded;
         static int maxindex;
 
-        public PNSnode(long hash, result_enum result, type_enum type, int pnum, int dpnum, int children, boolean expanded) {
+        PNSnode(long hash, result_enum result, type_enum type, int pnum, int dpnum, int children, boolean expanded) {
             this.hash = hash;
             this.result = result;
             this.type = type;
@@ -327,11 +324,10 @@ public class PNSearch {
             this.expanded = expanded;
         }
 
-        public PNSnode(long hash, result_enum result, type_enum type, result_enum goal){
+        PNSnode(long hash, result_enum result, type_enum type, result_enum goal){
             this(hash, result, type, 1, 1, 0, false);
-            int pnum = getpnum(result, goal);
-            this.pnum = pnum;
-            this.dpnum = getdpnum(pnum);
+            this.pnum = getpnum(result, goal);
+            this.dpnum = getdpnum(result, goal);
         }
 
         @Override

@@ -10,10 +10,11 @@ public class ExaThought {
 
 
     public static void main(String[] args) throws IllegalMoveException{
-        Position pos = new Position("8/8/8/8/3bK3/1nk5/8/2R5 b - - 0 1");
-        PNSearch test =  new PNSearch(pos, PNSearch.result_enum.WHITE_W);
+        Position pos = new Position("8/8/7p/5K1k/8/5p2/8/8 b - - 0 0");
+        PNSearch test =  new PNSearch(pos, PNSearch.result_enum.BLACK_W);
         System.out.println(test.search(10000000));
-        System.out.println(test.root);
+        System.out.println(test.root + "\n");
+        test.printChildren(new short[]{});
         System.out.println(test.printpv());
         //System.out.println(" " + pos.getCardinality());
 //        pos.setStart();
