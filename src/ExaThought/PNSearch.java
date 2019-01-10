@@ -134,8 +134,11 @@ class PNSearch {
             child.dpnum = (int) Math.min(sumdpval - olddpval + bestnode.dpnum, Integer.MAX_VALUE);
         }
         if(child.pnum == Integer.MAX_VALUE || child.dpnum == Integer.MAX_VALUE){
-            if(child.children >= 1000){
+            if(child.children >= Math.sqrt(root.children)){
                 System.out.println(child);
+            }
+            if(child != root) {
+                delChildren(child, childboard);
             }
         }
         //step sets child values, so child pnum and dpnum should now be correct (even in expansion case)
@@ -179,15 +182,18 @@ class PNSearch {
             return 0;
         }
         int bestpval = Integer.MAX_VALUE;
-        int bestdpval = 0;
+        int mostchildren = 0;
         short bestmove = 0;
         for(short m : moves){
             childboard.doMove(m);
             long chash = childboard.getHashCode();
             PNSkey key = new PNSkey(chash, child.index);
             PNSnode grandc = this.tree.get(key);
-            if(bestdpval < grandc.dpnum || (bestmove == 0)){
-                bestdpval = grandc.dpnum;
+            if (grandc == null) {
+                return 0;
+            }
+            if(mostchildren < grandc.children || (bestmove == 0)){
+                mostchildren = grandc.children;
                 if(child.type == type_enum.AND){
                     bestmove = m;
                 }
@@ -223,6 +229,24 @@ class PNSearch {
         }
     }
 
+    void delChildren(PNSnode node, Position childboard) throws IllegalMoveException{
+        short[] cmoves = childboard.getAllMoves();
+        for(short m : cmoves) {
+            childboard.doMove(m);
+            long chash = childboard.getHashCode();
+            PNSkey key = new PNSkey(chash, node.index);
+            PNSnode grandc = this.tree.get(key);
+            if(grandc != null) {
+                delChildren(grandc, childboard);
+                if (grandc.children < Math.sqrt(root.children)) {
+                    this.tree.remove(key);
+                }
+            }
+
+            childboard.undoMove();
+        }
+    }
+
     private ArrayList<Short> getpv() throws IllegalMoveException{
         PNSnode node = root;
         Position childboard = new Position(FEN.getFEN(this.rootboard));
@@ -233,6 +257,9 @@ class PNSearch {
             childboard.doMove(newmove);
             PNSkey key = new PNSkey(childboard.getHashCode(), node.index);
             node = this.tree.get(key);
+            if (node == null) {
+                return pv;
+            }
             newmove = getBestMove(node, childboard);
         }
         return pv;
@@ -287,7 +314,7 @@ class PNSearch {
         if (val == result_enum.UNKNOWN){
             return 1;
         }
-        if(val == goal || val == result_enum.D){
+        if(val == goal){
             return Integer.MAX_VALUE;
         }
         return 0;
