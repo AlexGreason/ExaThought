@@ -198,16 +198,16 @@ void board::gen_legal_moves(move *moves, int *nmoves) {
     move_log m{};
     for(int i = 0; i < pmovecount; i++) {
         apply_move(pmoves[i], &m);
-        if(!verify_board()){
-            std::cout << "Incorrect applymove result!" << std::endl;
-        }
+//        if(!verify_board()){
+//            std::cout << "Incorrect applymove result!" << std::endl;
+//        }
         if(!is_in_check(!turn)) {
             moves[(*nmoves)++] = pmoves[i];
         }
         undo_move(pmoves[i], &m);
-        if(!verify_board()){
-            std::cout << "Incorrect undomove result!" << std::endl;
-        }
+//        if(!verify_board()){
+//            std::cout << "Incorrect undomove result!" << std::endl;
+//        }
     }
 }
 
@@ -219,25 +219,22 @@ long perft(board *b, int depth) {
         return 1;
     }
     move_log m{};
-    if(!b->verify_board()){
-        std::cout << "Incorrect board in perft!" << std::endl;
-    }
+//    if(!b->verify_board()){
+//        std::cout << "Incorrect board in perft!" << std::endl;
+//    }
     b->gen_legal_moves(moves, &nmoves);
-    if(depth == 1) {
-        return nmoves;
-    }
     for(int i = 0; i < nmoves; i++) {
 
         b->apply_move(moves[i], &m);
 
-        if(!b->verify_board()){
-            std::cout << "Incorrect applymove result!" << std::endl;
-        }
+//        if(!b->verify_board()){
+//            std::cout << "Incorrect applymove result!" << std::endl;
+//        }
         count += perft(b, depth - 1);
         b->undo_move(moves[i], &m);
-        if(!b->verify_board()){
-            std::cout << "Incorrect undomove result!" << std::endl;
-        }
+//        if(!b->verify_board()){
+//            std::cout << "Incorrect undomove result!" << std::endl;
+//        }
     }
     return count;
 }

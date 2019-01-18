@@ -6,19 +6,19 @@
 #include "board.h"
 
 
-int from_square (move m) {
+int __always_inline from_square (move m) {
     return m & frommask;
 }
 
-int to_square (move m) {
+int __always_inline to_square (move m) {
     return (m & tomask) >> toshift;
 }
 
-int move_type(move m) {
+int __always_inline move_type(move m) {
     return (m & typemask) >> typeshift;
 }
 
-int promo_type (move m) {
+int __always_inline promo_type (move m) {
     return ((m & promomask) >> promoshift) + KNIGHT;
 }
 
@@ -112,21 +112,18 @@ void board::apply_normal_move(move m, move_log *log) {
     int frompiececolor = piece_color(frompiece);
 
     int topiecetype = piece_type(topiece);
-    int topiececolor = piece_color(topiece);
 
     squares[tosquare] = frompiece;
     squares[fromsquare] = EMPTY;
 
     if(topiecetype != EMPTY_TYPE) {
-        colors[topiececolor] &= ~(U64_1 << tosquare);
+        colors[!frompiececolor] &= ~(U64_1 << tosquare);
         pieces[topiecetype] &= ~(U64_1 << tosquare);
         fifty_move = 0;
     }
 
-    if(frompiecetype != EMPTY_TYPE) {
-        pieces[frompiecetype] ^= (U64_1 << fromsquare) | (U64_1 << tosquare);
-        colors[frompiececolor] ^= (U64_1 << fromsquare) | (U64_1 << tosquare);
-    }
+    pieces[frompiecetype] ^= (U64_1 << fromsquare) | (U64_1 << tosquare);
+    colors[frompiececolor] ^= (U64_1 << fromsquare) | (U64_1 << tosquare);
 
     if(frompiecetype == PAWN) {
         int fromrank = index_to_row(fromsquare);
@@ -140,24 +137,29 @@ void board::apply_normal_move(move m, move_log *log) {
     if(frompiecetype == KING) {
         castle_rights &= ~(CASTLEMASKS[turn][KINGSIDE] | CASTLEMASKS[turn][QUEENSIDE]);
     }
-    int queenrooksquareours = sq_to_index(turn == WHITE ? 0 : 7, A);
-    int kingrooksquareours  = sq_to_index(turn == WHITE ? 0 : 7, H);
-    if(fromsquare == queenrooksquareours) {
-        castle_rights &= ~CASTLEMASKS[turn][QUEENSIDE];
+
+    if(frompiecetype == ROOK) {
+        int queenrooksquareours = sq_to_index(turn == WHITE ? 0 : 7, A);
+        int kingrooksquareours  = sq_to_index(turn == WHITE ? 0 : 7, H);
+        if(fromsquare == queenrooksquareours) {
+            castle_rights &= ~CASTLEMASKS[turn][QUEENSIDE];
+        }
+
+        if(fromsquare == kingrooksquareours) {
+            castle_rights &= ~CASTLEMASKS[turn][KINGSIDE];
+        }
     }
 
-    if(fromsquare == kingrooksquareours) {
-        castle_rights &= ~CASTLEMASKS[turn][KINGSIDE];
-    }
+    if(topiecetype == ROOK) {
+        int queenrooksquaretheirs = sq_to_index(turn == BLACK ? 0 : 7, A);
+        int kingrooksquaretheirs  = sq_to_index(turn == BLACK ? 0 : 7, H);
+        if(tosquare == queenrooksquaretheirs) {
+            castle_rights &= ~CASTLEMASKS[!turn][QUEENSIDE];
+        }
 
-    int queenrooksquaretheirs = sq_to_index(turn == BLACK ? 0 : 7, A);
-    int kingrooksquaretheirs  = sq_to_index(turn == BLACK ? 0 : 7, H);
-    if(tosquare == queenrooksquaretheirs) {
-        castle_rights &= ~CASTLEMASKS[!turn][QUEENSIDE];
-    }
-
-    if(tosquare == kingrooksquaretheirs) {
-        castle_rights &= ~CASTLEMASKS[!turn][KINGSIDE];
+        if(tosquare == kingrooksquaretheirs) {
+            castle_rights &= ~CASTLEMASKS[!turn][KINGSIDE];
+        }
     }
 
     log->capture_piece = topiece;

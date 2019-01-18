@@ -7,9 +7,9 @@
 int main() {
     auto *test = new board();
 
-    //char *fen = const_cast<char *>(startpos);
+    char *fen = const_cast<char *>(startpos);
     //print_bitboard(CASTLING_UNOCCUPIED[BLACK][KINGSIDE]);
-    char *fen = const_cast<char *>("r3k3/1P6/8/8/8/8/1p6/R3K3 w Qq - 0 1");
+    //char *fen = const_cast<char *>("r3k3/1P6/8/8/8/8/1p6/R3K3 w Qq - 0 1");
 //    move m = make_move(sq_to_index(1, 0), sq_to_index(3, 0));
 //    move m2 = make_move(sq_to_index(6, 1), sq_to_index(4, 1));
 //    //print_bitboard(PROMO_RANKS);
@@ -28,7 +28,7 @@ int main() {
     //test->apply_move(2161, &m_log);
     //test->apply_move(1739, &m_log);
     test->print_board();
-    divide(test, 3);
+    divide(test, 7);
 //    for(int i = 0; i < nmoves; i++) {
 //        test->print_move(allmoves[i], string);
 //        std::cout << string << std::endl;

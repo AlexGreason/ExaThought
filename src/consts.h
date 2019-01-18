@@ -110,19 +110,19 @@ enum {
     QUEENSIDE = 1
 };
 
-static int piece_type (char piece) {
+static __always_inline int piece_type (char piece) {
     return piece / 4;
 }
 
-static int piece_color (char piece) {
+static __always_inline int piece_color (char piece) {
     return piece % 4;
 }
 
-static char make_piece (int piece, int color) {
+static __always_inline char make_piece (int piece, int color) {
     return static_cast<char>(piece * 4 + color);
 }
 
-static bool check_castle_rights(char rights, int color, int side) {
+static __always_inline bool check_castle_rights(char rights, int color, int side) {
     return rights & CASTLEMASKS[color][side];
 }
 

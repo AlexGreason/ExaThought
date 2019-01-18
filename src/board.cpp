@@ -100,6 +100,7 @@ void board::init_startpos() {
 }
 
 bool board::verify_board() {
+    std::cout << "verifying!" << std::endl;
     for(int i = 0; i < NSQUARES; i++) {
         char piece = squares[i];
         for(int j = 0; j < NPIECES; j++) {
