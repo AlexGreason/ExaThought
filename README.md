@@ -1,2 +1,2 @@
 # ExaThought
-A java-based chess engine using chesspresso for board representation and move generation. 
+The beginnings of a C++ chess engine. 
