@@ -125,9 +125,20 @@ move board::parse_san(std::string san){
     move moves[MAXMOVES];
     gen_legal_moves(moves, &nmoves);
     char lastchar = san[san.length() - 1];
-    if (lastchar == '#' || lastchar == '+'){
+    while (lastchar == '!' || lastchar == '?' || lastchar == '#' || lastchar == '+'){
         san.pop_back();
+        lastchar = san[san.length() - 1];
     }
+    for (int i = 0; i < nmoves; i++){
+        move tmp = moves[i];
+        char string[16];
+        print_san(tmp, string, moves, nmoves);
+        //std::cout << string << " " << san << std::endl;
+        if(strcmp(string, san.c_str()) == 0){
+            return tmp;
+        }
+    }
+    std::cout << "parse failed!" << std::endl;
     for (int i = 0; i < nmoves; i++){
         move tmp = moves[i];
         char string[16];
@@ -135,12 +146,8 @@ move board::parse_san(std::string san){
         if(isupper(san[0])){
             string[0] = static_cast<char>(toupper(string[0]));
         }
-        //std::cout << string << " " << san << std::endl;
-        if(strcmp(string, san.c_str()) == 0){
-            return tmp;
-        }
+        std::cout << string << " " << san << std::endl;
     }
-    std::cout << "parse failed!" << std::endl;
     return 0;
 }
 void board::print_san(move m, char* str, move* moves, int nmoves){
@@ -163,6 +170,7 @@ void board::print_san(move m, char* str, move* moves, int nmoves){
                     if(file != tmpfile){
                         specfile = true;
                     } else {
+                        specfile = true;
                         specrow = true;
                     }
                 }
@@ -186,12 +194,12 @@ void board::print_san(move m, char* str, move* moves, int nmoves){
         return;
     }
     if(piece_type(type) != PAWN) {
-        str[i++] = piece_to_char(type);
+        str[i++] = static_cast<char>(toupper(piece_to_char(type)));
         if(specfile){
             str[i++] = static_cast<char>('a' + index_to_file(fromsquare));
         }
         if(specrow){
-            static_cast<char>('1' + index_to_row(fromsquare));
+            str[i++] = static_cast<char>('1' + index_to_row(fromsquare));
         }
         if (iscapture){
             str[i++] = 'x';

@@ -7,5 +7,7 @@
 
 #include "board.h"
 
+#define S(mg,eg) ((mg)+((eg)<<16U))
+
 
 #endif //EXATHOUGHT_EVAL_H

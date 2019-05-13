@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include "bitboards.h"
 
 

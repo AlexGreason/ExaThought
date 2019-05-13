@@ -6,8 +6,8 @@
 #include "pgn.h"
 
 int main() {
-    //std::string str = get_file_contents("/home/exa/Documents/Chess/cutechess/leelagames/ID27-game7.pgn");
-    std::string filename = "/home/exa/Dropbox/Programming/C Code/CLion/ExaThought/src/enpass.pgn";
-    parse_file(filename);
+    //std::string filename = "/home/exa/Dropbox/Programming/C Code/CLion/ExaThought/src/enpass.pgn";
+    std::string filename = "/media/exa/4TB-Archival2/lichessgames/lichess_db_standard_rated_2013-01.pgn";
+    parse_file(filename, -1);
     return 0;
 }

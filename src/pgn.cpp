@@ -75,7 +75,12 @@ game* parse_pgn(std::vector<std::string> *pgn){
                     char string[16];
                     if (tmp != 0){
                         b.print_move(tmp, string);
-                        //std::cout << " " << string << std::endl;
+                        //std::cout << subline << " " << string << std::endl;
+                    } else {
+                        b.print_board();
+                        std::cout << nmoves << std::endl;
+                        print_map(res->headers);
+                        return res;
                     }
                     nmoves++;
                     moves.push_back(tmp);
@@ -92,12 +97,13 @@ game* parse_pgn(std::vector<std::string> *pgn){
         memcpy(&movearr[i], &moves[i], sizeof(move));
         memcpy(&boardarr[i], &boards[i], sizeof(board));
     }
+
     std::string resultstr = res->headers.at("Result");
     res->result = parse_result(resultstr);
     res->nply = static_cast<int>(nmoves);
     res->moves = movearr;
     res->boards = boardarr;
-    //print_map(res->headers);
+
     return res;
 }
 
@@ -126,14 +132,36 @@ void game::delete_game(){
     delete this;
 }
 
-void parse_file(std::string filename){
+void parse_file(std::string filename, int maxgames){
     std::ifstream file(filename);
     std::string line;
     std::vector<std::string> pgn = std::vector<std::string>();
+    bool inheaders = true;
+    game* g;
+    int i = 0;
     while (std::getline(file, line)){
+        if (line[0] == '[' && !inheaders){
+            g = parse_pgn(&pgn);
+            //g->print_game();
+            //std::cout << std::endl;
+            g->delete_game();
+            pgn.clear();
+            inheaders = true;
+            i++;
+            if(i % 100 == 0){
+                std::cout << i << std::endl;
+            }
+            if (i >= maxgames && maxgames > 0){
+                return;
+            }
+        }
+        if (line[0] != '[') {
+            inheaders = false;
+        }
         pgn.push_back(line);
     }
-    auto* g = parse_pgn(&pgn);
-    g->print_game();
+    g = parse_pgn(&pgn);
+    //g->print_game();
     g->delete_game();
+    pgn.clear();
 }

@@ -16,7 +16,6 @@
 #define U64_1 1ULL
 #define MAXMOVES 512
 typedef unsigned long U64;
-typedef int etype;
 typedef uint16_t move;
 
 const U64 AFILE = 0x0101010101010101;
