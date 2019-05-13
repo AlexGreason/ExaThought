@@ -19,7 +19,7 @@ std::string get_file_contents(const char *filename) {
     if (in) {
         std::string contents;
         in.seekg(0, std::ios::end);
-        contents.resize(in.tellg());
+        contents.resize(static_cast<unsigned long>(in.tellg()));
         in.seekg(0, std::ios::beg);
         in.read(&contents[0], contents.size());
         in.close();
@@ -29,8 +29,8 @@ std::string get_file_contents(const char *filename) {
 }
 
 void print_map(std::unordered_map<std::string, std::string> map){
-    for (auto iter = map.begin(); iter != map.end(); iter++){
-        std::cout << iter->first << " : " << iter->second << std::endl;
+    for (auto &iter : map) {
+        std::cout << iter.first << " : " << iter.second << std::endl;
     }
 }
 
@@ -43,7 +43,7 @@ game* parse_pgn(std::vector<std::string> *pgn){
     b.init_startpos();
     std::vector<move> moves = std::vector<move>();
     std::vector<board> boards = std::vector<board>();
-    int nmoves = 0;
+    size_t nmoves = 0;
     for(auto line : *pgn){
         if (line[0] == '['){
             line.pop_back();
@@ -71,7 +71,7 @@ game* parse_pgn(std::vector<std::string> *pgn){
                 }
                 if (!skip and !incomment){
                     move tmp = b.parse_san(subline);
-                    move_log log;
+                    move_log log{};
                     char string[16];
                     if (tmp != 0){
                         b.print_move(tmp, string);
@@ -86,15 +86,15 @@ game* parse_pgn(std::vector<std::string> *pgn){
             }
         }
     }
-    move* movearr = static_cast<move*>(calloc(nmoves, sizeof(move)));
-    board* boardarr = static_cast<board*>(calloc(nmoves, sizeof(board)));
+    auto * movearr = static_cast<move*>(calloc(nmoves, sizeof(move)));
+    auto * boardarr = static_cast<board*>(calloc(nmoves, sizeof(board)));
     for (int i = 0; i < nmoves; i++){
         memcpy(&movearr[i], &moves[i], sizeof(move));
         memcpy(&boardarr[i], &boards[i], sizeof(board));
     }
     std::string resultstr = res->headers.at("Result");
     res->result = parse_result(resultstr);
-    res->nply = nmoves;
+    res->nply = static_cast<int>(nmoves);
     res->moves = movearr;
     res->boards = boardarr;
     //print_map(res->headers);

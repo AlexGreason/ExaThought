@@ -124,19 +124,16 @@ move board::parse_san(std::string san){
     int nmoves = 0;
     move moves[MAXMOVES];
     gen_legal_moves(moves, &nmoves);
-    int from, to, piece, promopiece = 0;
-    unsigned long len = san.length();
     char lastchar = san[san.length() - 1];
     if (lastchar == '#' || lastchar == '+'){
         san.pop_back();
     }
-    char sectolast = san[san.length() - 2];
     for (int i = 0; i < nmoves; i++){
         move tmp = moves[i];
         char string[16];
         print_san(tmp, string, moves, nmoves);
         if(isupper(san[0])){
-            string[0] = toupper(string[0]);
+            string[0] = static_cast<char>(toupper(string[0]));
         }
         //std::cout << string << " " << san << std::endl;
         if(strcmp(string, san.c_str()) == 0){
@@ -162,12 +159,10 @@ void board::print_san(move m, char* str, move* moves, int nmoves){
                 char tmptype = squares[tmpfrom];
                 if(tmptype == type){
                     int file = index_to_file(fromsquare);
-                    int row = index_to_row(fromsquare);
                     int tmpfile = index_to_file(tmpfrom);
-                    int tmprow = index_to_row(tmpfrom);
                     if(file != tmpfile){
                         specfile = true;
-                    }else {
+                    } else {
                         specrow = true;
                     }
                 }
