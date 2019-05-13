@@ -138,7 +138,7 @@ move board::parse_san(std::string san){
         if(isupper(san[0])){
             string[0] = toupper(string[0]);
         }
-        std::cout << string << " " << san << std::endl;
+        //std::cout << string << " " << san << std::endl;
         if(strcmp(string, san.c_str()) == 0){
             return tmp;
         }

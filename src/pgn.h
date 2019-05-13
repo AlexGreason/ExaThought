@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include "move.h"
 #include "board.h"
+#include <vector>
 
 struct game {
     int nply;
@@ -17,9 +18,12 @@ struct game {
     board* boards;
 
     void print_game();
+
+    void delete_game();
 };
 
-game* parse_pgn(std::string pgn);
+game* parse_pgn(std::vector<std::string> *pgn);
+void parse_file(std::string filename);
 std::string get_file_contents(const char *filename);
 
 

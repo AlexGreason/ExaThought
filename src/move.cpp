@@ -38,7 +38,7 @@ void board::print_move(move m, char* str) {
     int fromsquare = from_square(m);
     int tosquare = to_square(m);
     char type = squares[fromsquare];
-    bool iscapture = squares[tosquare] != EMPTY;
+    bool iscapture = squares[tosquare] != EMPTY || move_type(m) == ENPASS_MOVE;
     int i = 0;
     if(move_type(m) == CASTLE_MOVE){
         int len = 0;

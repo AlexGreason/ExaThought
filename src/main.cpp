@@ -7,8 +7,7 @@
 
 int main() {
     //std::string str = get_file_contents("/home/exa/Documents/Chess/cutechess/leelagames/ID27-game7.pgn");
-    std::string str = get_file_contents("/home/exa/Dropbox/Programming/C Code/CLion/ExaThought/src/enpass.pgn");
-    auto* g = parse_pgn(str);
-    g->print_game();
+    std::string filename = "/home/exa/Dropbox/Programming/C Code/CLion/ExaThought/src/enpass.pgn";
+    parse_file(filename);
     return 0;
 }

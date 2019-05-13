@@ -8,11 +8,9 @@
 #include <string>
 #include <cerrno>
 #include <cstring>
-#include <vector>
+
 
 #include "pgn.h"
-
-#define MAXHEADLEN 256
 
 int parse_result(std::string result);
 
@@ -36,20 +34,17 @@ void print_map(std::unordered_map<std::string, std::string> map){
     }
 }
 
-game* parse_pgn(std::string pgn){
+game* parse_pgn(std::vector<std::string> *pgn){
     std::string path = "/home/exa/Documents/cutechess/leelagames/ID27-game7.pgn";
     auto* res = static_cast<game*>(std::calloc(1, sizeof(game)));
     res->headers = std::unordered_map<std::string, std::string>();
-    std::stringstream ss(pgn);
-    std::string line;
-
     std::string subline;
     board b = board();
     b.init_startpos();
     std::vector<move> moves = std::vector<move>();
     std::vector<board> boards = std::vector<board>();
     int nmoves = 0;
-    while(std::getline(ss, line, '\n')){
+    for(auto line : *pgn){
         if (line[0] == '['){
             line.pop_back();
             line.erase(line.begin());
@@ -80,13 +75,13 @@ game* parse_pgn(std::string pgn){
                     char string[16];
                     if (tmp != 0){
                         b.print_move(tmp, string);
-                        std::cout << " " << string << std::endl;
+                        //std::cout << " " << string << std::endl;
                     }
                     nmoves++;
                     moves.push_back(tmp);
                     boards.push_back(b);
                     b.apply_move(tmp, &log);
-                    b.print_board();
+                    //b.print_board();
                 }
             }
         }
@@ -125,3 +120,20 @@ void game::print_game(){
     std::cout << "Ply " << this->nply << std::endl;
 }
 
+void game::delete_game(){
+    delete this->moves;
+    delete this->boards;
+    delete this;
+}
+
+void parse_file(std::string filename){
+    std::ifstream file(filename);
+    std::string line;
+    std::vector<std::string> pgn = std::vector<std::string>();
+    while (std::getline(file, line)){
+        pgn.push_back(line);
+    }
+    auto* g = parse_pgn(&pgn);
+    g->print_game();
+    g->delete_game();
+}
