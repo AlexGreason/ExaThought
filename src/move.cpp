@@ -6,19 +6,19 @@
 #include "board.h"
 
 
-int __always_inline from_square (move m) {
+int from_square (move m) {
     return m & frommask;
 }
 
-int __always_inline to_square (move m) {
+int to_square (move m) {
     return (m & tomask) >> toshift;
 }
 
-int __always_inline move_type(move m) {
+int move_type(move m) {
     return (m & typemask) >> typeshift;
 }
 
-int __always_inline promo_type (move m) {
+int promo_type (move m) {
     return ((m & promomask) >> promoshift) + KNIGHT;
 }
 
@@ -38,6 +38,7 @@ void board::print_move(move m, char* str) {
     int fromsquare = from_square(m);
     int tosquare = to_square(m);
     char type = squares[fromsquare];
+    bool iscapture = squares[tosquare] != EMPTY;
     int i = 0;
     if(move_type(m) == CASTLE_MOVE){
         int len = 0;
@@ -57,6 +58,12 @@ void board::print_move(move m, char* str) {
     }
     if(piece_type(type) != PAWN) {
         str[i++] = piece_to_char(type);
+        if (iscapture){
+            str[i++] = 'x';
+        }
+    } else if (iscapture){
+        str[i++] = static_cast<char>('a' + index_to_file(fromsquare));
+        str[i++] = 'x';
     }
     str[i++] = static_cast<char>('a' + index_to_file(tosquare));
     str[i++] = static_cast<char>('1' + index_to_row(tosquare));

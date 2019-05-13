@@ -1,0 +1,26 @@
+//
+// Created by exa on 5/9/19.
+//
+
+#ifndef EXATHOUGHT_PGN_H
+#define EXATHOUGHT_PGN_H
+
+#include <unordered_map>
+#include "move.h"
+#include "board.h"
+
+struct game {
+    int nply;
+    int result;
+    std::unordered_map<std::string, std::string> headers;
+    move* moves;
+    board* boards;
+
+    void print_game();
+};
+
+game* parse_pgn(std::string pgn);
+std::string get_file_contents(const char *filename);
+
+
+#endif //EXATHOUGHT_PGN_H

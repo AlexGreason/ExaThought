@@ -10,6 +10,7 @@
 #include "bitboards.h"
 #include "consts.h"
 
+
 class move_log {
 public:
     char castle_rights;
@@ -54,6 +55,8 @@ public:
     void undo_enpass_move(move m, move_log *pLog);
     bool verify_board();
     void print_move(move m, char* str);
+    void print_san(move m, char *str, move *moves, int nmoves);
+    move parse_san(std::string san);
 };
 
 

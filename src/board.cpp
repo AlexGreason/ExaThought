@@ -6,7 +6,7 @@
 #include <iostream>
 #include "consts.h"
 #include "board.h"
-
+#include "move.h"
 
 static int string_to_square(const char *str) {
     return str[0] == '-' ? -1 : sq_to_index((int)(str[1] - '1'), (int)(str[0] - 'a'));
@@ -118,4 +118,102 @@ bool board::verify_board() {
         }
     }
     return true;
+}
+
+move board::parse_san(std::string san){
+    int nmoves = 0;
+    move moves[MAXMOVES];
+    gen_legal_moves(moves, &nmoves);
+    int from, to, piece, promopiece = 0;
+    unsigned long len = san.length();
+    char lastchar = san[san.length() - 1];
+    if (lastchar == '#' || lastchar == '+'){
+        san.pop_back();
+    }
+    char sectolast = san[san.length() - 2];
+    for (int i = 0; i < nmoves; i++){
+        move tmp = moves[i];
+        char string[16];
+        print_san(tmp, string, moves, nmoves);
+        if(isupper(san[0])){
+            string[0] = toupper(string[0]);
+        }
+        std::cout << string << " " << san << std::endl;
+        if(strcmp(string, san.c_str()) == 0){
+            return tmp;
+        }
+    }
+    std::cout << "parse failed!" << std::endl;
+    return 0;
+}
+void board::print_san(move m, char* str, move* moves, int nmoves){
+    int fromsquare = from_square(m);
+    int tosquare = to_square(m);
+    char type = squares[fromsquare];
+    bool iscapture = squares[tosquare] != EMPTY || move_type(m) == ENPASS_MOVE;
+    int i = 0;
+    bool specfile = false;
+    bool specrow = false;
+    for(int j = 0; j < nmoves; j++){
+        move tmp = moves[j];
+        if(to_square(tmp) == to_square(m)){
+            int tmpfrom = from_square(tmp);
+            if(fromsquare != tmpfrom){
+                char tmptype = squares[tmpfrom];
+                if(tmptype == type){
+                    int file = index_to_file(fromsquare);
+                    int row = index_to_row(fromsquare);
+                    int tmpfile = index_to_file(tmpfrom);
+                    int tmprow = index_to_row(tmpfrom);
+                    if(file != tmpfile){
+                        specfile = true;
+                    }else {
+                        specrow = true;
+                    }
+                }
+            }
+        }
+    }
+    if(move_type(m) == CASTLE_MOVE){
+        int len = 0;
+        char *cstr;
+        if(tosquare == CASTLESQUARES[piece_color(type)][KINGSIDE]) {
+            cstr = const_cast<char*>("O-O");
+            len = 3;
+        } else {
+            cstr = const_cast<char*>("O-O-O");
+            len = 5;
+        }
+        for (int j = 0; j < len; j++) {
+            str[j] = cstr[j];
+        }
+        str[len] = 0;
+        return;
+    }
+    if(piece_type(type) != PAWN) {
+        str[i++] = piece_to_char(type);
+        if(specfile){
+            str[i++] = static_cast<char>('a' + index_to_file(fromsquare));
+        }
+        if(specrow){
+            static_cast<char>('1' + index_to_row(fromsquare));
+        }
+        if (iscapture){
+            str[i++] = 'x';
+        }
+    } else if (iscapture){
+        str[i++] = static_cast<char>('a' + index_to_file(fromsquare));
+        str[i++] = 'x';
+    }
+    str[i++] = static_cast<char>('a' + index_to_file(tosquare));
+    str[i++] = static_cast<char>('1' + index_to_row(tosquare));
+
+    if (move_type(m) == ENPASS_MOVE) {
+        //str[i++] = 'e';
+    } else if (move_type(m) == PROMO_MOVE) {
+        str[i++] = '=';
+        str[i++] = piece_to_char(make_piece(promo_type(m), WHITE));
+    }
+
+    str[i] = 0;
 }
