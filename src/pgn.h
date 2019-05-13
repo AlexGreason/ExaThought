@@ -18,7 +18,6 @@ struct game {
     board* boards;
 
     void print_game();
-
     void delete_game();
 };
 

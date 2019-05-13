@@ -156,8 +156,9 @@ void board::print_san(move m, char* str, move* moves, int nmoves){
     char type = squares[fromsquare];
     bool iscapture = squares[tosquare] != EMPTY || move_type(m) == ENPASS_MOVE;
     int i = 0;
-    bool specfile = false;
-    bool specrow = false;
+    bool samefile = false;
+    bool samerow = false;
+    bool specsomething = false;
     for(int j = 0; j < nmoves; j++){
         move tmp = moves[j];
         if(to_square(tmp) == to_square(m)){
@@ -166,17 +167,22 @@ void board::print_san(move m, char* str, move* moves, int nmoves){
                 char tmptype = squares[tmpfrom];
                 if(tmptype == type){
                     int file = index_to_file(fromsquare);
+                    int row = index_to_row(fromsquare);
                     int tmpfile = index_to_file(tmpfrom);
-                    if(file != tmpfile){
-                        specfile = true;
-                    } else {
-                        specfile = true;
-                        specrow = true;
+                    int tmprow = index_to_row(tmpfrom);
+                    if(file == tmpfile){
+                        samefile = true;
                     }
+                    if (row == tmprow){
+                        samerow = true;
+                    }
+                    specsomething = true;
                 }
             }
         }
     }
+    bool specrow = samefile;
+    bool specfile = samerow || (!specrow && specsomething);
     if(move_type(m) == CASTLE_MOVE){
         int len = 0;
         char *cstr;

@@ -69,6 +69,9 @@ game* parse_pgn(std::vector<std::string> *pgn){
                 if(subline[0] == '1' or subline[0] == '0'){
                     skip = true;
                 }
+                if(subline.length() < 2){
+                    skip = true;
+                }
                 if (!skip and !incomment){
                     move tmp = b.parse_san(subline);
                     move_log log{};
@@ -148,7 +151,7 @@ void parse_file(std::string filename, int maxgames){
             pgn.clear();
             inheaders = true;
             i++;
-            if(i % 100 == 0){
+            if(i % 10000 == 0){
                 std::cout << i << std::endl;
             }
             if (i >= maxgames && maxgames > 0){
