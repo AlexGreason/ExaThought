@@ -22,7 +22,7 @@ struct game {
 };
 
 game* parse_pgn(std::vector<std::string> *pgn);
-void parse_file(std::string filename, int maxgames);
+void parse_file(std::string filename, int maxgames, std::string outfile);
 std::string get_file_contents(const char *filename);
 
 

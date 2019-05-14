@@ -8,9 +8,9 @@
 #include <string>
 #include <cerrno>
 #include <cstring>
-
-
 #include "pgn.h"
+#include "predicates.h"
+
 
 int parse_result(std::string result);
 
@@ -35,7 +35,6 @@ void print_map(std::unordered_map<std::string, std::string> map){
 }
 
 game* parse_pgn(std::vector<std::string> *pgn){
-    std::string path = "/home/exa/Documents/cutechess/leelagames/ID27-game7.pgn";
     auto* res = static_cast<game*>(std::calloc(1, sizeof(game)));
     res->headers = std::unordered_map<std::string, std::string>();
     std::string subline;
@@ -94,8 +93,8 @@ game* parse_pgn(std::vector<std::string> *pgn){
             }
         }
     }
-    auto * movearr = static_cast<move*>(calloc(nmoves, sizeof(move)));
-    auto * boardarr = static_cast<board*>(calloc(nmoves, sizeof(board)));
+    auto* movearr = static_cast<move*>(calloc(nmoves, sizeof(move)));
+    auto* boardarr = static_cast<board*>(calloc(nmoves, sizeof(board)));
     for (int i = 0; i < nmoves; i++){
         memcpy(&movearr[i], &moves[i], sizeof(move));
         memcpy(&boardarr[i], &boards[i], sizeof(board));
@@ -106,7 +105,7 @@ game* parse_pgn(std::vector<std::string> *pgn){
     res->nply = static_cast<int>(nmoves);
     res->moves = movearr;
     res->boards = boardarr;
-
+    write_game_data(res);
     return res;
 }
 
@@ -135,8 +134,9 @@ void game::delete_game(){
     delete this;
 }
 
-void parse_file(std::string filename, int maxgames){
+void parse_file(std::string filename, int maxgames, std::string outfile){
     std::ifstream file(filename);
+    std::ofstream ofile(outfile);
     std::string line;
     std::vector<std::string> pgn = std::vector<std::string>();
     bool inheaders = true;
@@ -145,7 +145,7 @@ void parse_file(std::string filename, int maxgames){
     while (std::getline(file, line)){
         if (line[0] == '[' && !inheaders){
             g = parse_pgn(&pgn);
-            //g->print_game();
+            //write_game_data(g, &ofile);
             //std::cout << std::endl;
             g->delete_game();
             pgn.clear();

@@ -5,8 +5,11 @@
 #ifndef EXATHOUGHT_PREDICATES_H
 #define EXATHOUGHT_PREDICATES_H
 
+#include "board.h"
+#include "pgn.h"
+
 #define NPREDS 3
 
-
+void write_game_data(game* g);
 
 #endif //EXATHOUGHT_PREDICATES_H
