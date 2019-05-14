@@ -5,6 +5,7 @@
 #ifndef EXATHOUGHT_PREDICATES_H
 #define EXATHOUGHT_PREDICATES_H
 
+#define NPREDS 3
 
 
 

@@ -11,3 +11,8 @@ int board::eval_pos(){
 
     return res;
 }
+
+int board::count_pieces(int type, bool color){
+    U64 bb = this->pieces[type] & this->colors[color];
+    return popcount(bb);
+}

@@ -59,6 +59,8 @@ public:
     move parse_san(std::string san);
 
     int eval_pos();
+
+    int count_pieces(int type, bool color);
 };
 
 
