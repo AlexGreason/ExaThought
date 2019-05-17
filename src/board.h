@@ -61,6 +61,10 @@ public:
     int eval_pos();
 
     int count_pieces(int type, bool color);
+
+    int eval_material(bool color);
+
+    int pawn_advance(bool color);
 };
 
 

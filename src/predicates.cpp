@@ -7,7 +7,9 @@
 #include <fstream>
 #include <iostream>
 #include "predicates.h"
+#include "eval.h"
 
+#define NPREDS 26
 
 void print_array(int* arr, int rows, int cols){
     for(int r = 0; r < rows; r++){
@@ -26,9 +28,31 @@ void calc_preds(board* b, int preds[NPREDS]){
     int i = 0;
     bool us = static_cast<bool>(b->turn);
     bool them = !us;
-    preds[i++] = (b->turn == WHITE); // side
-    preds[i++] = (b->count_pieces(PAWN, us));
-    preds[i++] = (b->count_pieces(PAWN, them));
+    move moves[MAXMOVES];
+    int nmoves = 0;
+    b->gen_legal_moves(moves, &nmoves);
+    preds[i++] = b->turn == WHITE; // side
+    for(int type = PAWN; type <= QUEEN; type++){
+        int uscount = b->count_pieces(type, us);
+        int oppcount = b->count_pieces(type, them);
+        preds[i++] = uscount;
+        preds[i++] = oppcount;
+        preds[i++] = uscount - oppcount;
+    }
+    preds[i++] = b->fifty_move;
+    preds[i++] = b->fifty_move % 2;
+    preds[i++] = nmoves;
+    preds[i++] = b->is_in_check(us);
+    int ourmat = mg_val(b->eval_material(us));
+    int theirmat = mg_val(b->eval_material(them));
+    preds[i++] = ourmat;
+    preds[i++] = theirmat;
+    preds[i++] = ourmat - theirmat;
+    int ouradv = b->pawn_advance(us);
+    int theiradv = b->pawn_advance(them);
+    preds[i++] = ouradv;
+    preds[i++] = theiradv;
+    preds[i++] = ouradv - theiradv;
     //for (int j = 0; j < NPREDS; j++){
     //    std::cout << preds[j] << std::endl;
     //}

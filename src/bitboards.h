@@ -19,6 +19,8 @@ int pop_lsb(U64 *bb);
 int sq_to_index (int row, int file);
 int index_to_row (int i);
 int index_to_file (int i);
+int relative_rank (int i, bool color);
+int relative_index (int i, bool color);
 U64 north_attacks (U64 pieces, U64 empty);
 U64 south_attacks (U64 pieces, U64 empty);
 U64 vert_attacks(U64 pieces, U64 empty);

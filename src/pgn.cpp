@@ -157,8 +157,6 @@ void parse_file(std::string filename, int maxgames, std::string outfile, bool di
             g->delete_game();
             pgn.clear();
             inheaders = true;
-
-
             if (i >= maxgames && maxgames > 0){
                 return;
             }

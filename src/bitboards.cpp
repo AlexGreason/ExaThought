@@ -54,6 +54,20 @@ int index_to_file (int i) {
     return i % 8;
 }
 
+int relative_rank (int i, bool color){
+    if (color == WHITE){
+        return index_to_row(i);
+    }
+    return 7-index_to_row(i);
+}
+
+int relative_index (int i, bool color){
+    if(color == WHITE){
+        return i;
+    }
+    return sq_to_index(relative_rank(i, color), index_to_file(i));
+}
+
 int get_lsb(U64 bb) {
     assert(bb);
     return __builtin_ctzll(bb);
