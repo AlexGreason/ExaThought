@@ -2,6 +2,7 @@
 // Created by exa on 5/12/19.
 //
 
+#include <iostream>
 #include "eval.h"
 
 const int piecevals[NPIECES] = {S(0U, 0U), S(100U, 100U), S(300U, 300U), S(300U, 300U), S(500U, 500U), S(900U, 900U)};

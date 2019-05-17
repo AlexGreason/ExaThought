@@ -105,7 +105,7 @@ game* parse_pgn(std::vector<std::string> *pgn){
     res->nply = static_cast<int>(nmoves);
     res->moves = movearr;
     res->boards = boardarr;
-    write_game_data(res);
+    //write_game_data(res);
     return res;
 }
 
@@ -134,7 +134,7 @@ void game::delete_game(){
     delete this;
 }
 
-void parse_file(std::string filename, int maxgames, std::string outfile){
+void parse_file(std::string filename, int maxgames, std::string outfile, bool discardunusual){
     std::ifstream file(filename);
     std::ofstream ofile(outfile);
     std::string line;
@@ -145,15 +145,20 @@ void parse_file(std::string filename, int maxgames, std::string outfile){
     while (std::getline(file, line)){
         if (line[0] == '[' && !inheaders){
             g = parse_pgn(&pgn);
-            //write_game_data(g, &ofile);
-            //std::cout << std::endl;
+            if((g->headers["Termination"])[0] == 'N' || !discardunusual){
+                //print_map(g->headers);
+                write_game_data(g, outfile);
+                //std::cout << std::endl;
+                i++;
+                if(i % 10000 == 0 && i != 0){
+                    std::cout << i << std::endl;
+                }
+            }
             g->delete_game();
             pgn.clear();
             inheaders = true;
-            i++;
-            if(i % 10000 == 0){
-                std::cout << i << std::endl;
-            }
+
+
             if (i >= maxgames && maxgames > 0){
                 return;
             }
@@ -164,7 +169,10 @@ void parse_file(std::string filename, int maxgames, std::string outfile){
         pgn.push_back(line);
     }
     g = parse_pgn(&pgn);
-    //g->print_game();
+    if((g->headers["Termination"])[0] == 'N' || !discardunusual){
+        write_game_data(g, outfile);
+        std::cout << std::endl;
+    }
     g->delete_game();
     pgn.clear();
 }

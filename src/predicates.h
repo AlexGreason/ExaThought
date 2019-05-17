@@ -10,6 +10,6 @@
 
 #define NPREDS 3
 
-void write_game_data(game* g);
+void write_game_data(game* g, std::string outfile);
 
 #endif //EXATHOUGHT_PREDICATES_H

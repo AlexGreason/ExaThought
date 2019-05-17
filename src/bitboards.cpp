@@ -39,7 +39,7 @@ void assign_bit (U64 *bb, int index, bool val) {
 }
 
 int popcount (U64 bb) {
-    return __builtin_popcount(bb);
+    return __builtin_popcountll(bb);
 }
 
 int sq_to_index (int row, int file) {
