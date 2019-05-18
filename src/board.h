@@ -57,14 +57,12 @@ public:
     void print_move(move m, char* str);
     void print_san(move m, char *str, move *moves, int nmoves);
     move parse_san(std::string san);
-
     int eval_pos();
-
     int count_pieces(int type, bool color);
-
     int eval_material(bool color);
-
     int pawn_advance(bool color);
+
+    int max_rank(int type, bool color);
 };
 
 

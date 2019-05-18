@@ -9,7 +9,7 @@
 #include "predicates.h"
 #include "eval.h"
 
-#define NPREDS 26
+#define NPREDS 29
 
 void print_array(int* arr, int rows, int cols){
     for(int r = 0; r < rows; r++){
@@ -53,6 +53,11 @@ void calc_preds(board* b, int preds[NPREDS]){
     preds[i++] = ouradv;
     preds[i++] = theiradv;
     preds[i++] = ouradv - theiradv;
+    int ourmaxpawn = b->max_rank(PAWN, us);
+    int theirmaxpawn = b->max_rank(PAWN, them);
+    preds[i++] = ourmaxpawn;
+    preds[i++] = theirmaxpawn;
+    preds[i++] = ourmaxpawn - theirmaxpawn;
     //for (int j = 0; j < NPREDS; j++){
     //    std::cout << preds[j] << std::endl;
     //}

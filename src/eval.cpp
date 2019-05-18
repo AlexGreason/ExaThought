@@ -39,3 +39,16 @@ int board::pawn_advance(bool color){
     }
     return 0;
 }
+
+int board::max_rank(int type, bool color){
+    U64 pieces = this->pieces[type] & this->colors[color];
+    int max = 0;
+    while (pieces){
+        int i = pop_lsb(&pieces);
+        int rank = relative_rank(i, color);
+        if (rank > max){
+            max = rank;
+        }
+    }
+    return max;
+}
