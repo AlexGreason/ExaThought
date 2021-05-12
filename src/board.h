@@ -61,8 +61,12 @@ public:
     int count_pieces(int type, bool color);
     int eval_material(bool color);
     int pawn_advance(bool color);
-
     int max_rank(int type, bool color);
+    U64 open_files();
+    int rook_on_open_file(bool color);
+    int passed_pawns(bool color);
+
+    std::string to_fen();
 };
 
 

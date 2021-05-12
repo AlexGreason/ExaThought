@@ -22,7 +22,9 @@ struct game {
 };
 
 game* parse_pgn(std::vector<std::string> *pgn);
+int parse_result(std::string result);
 void parse_file(std::string filename, int maxgames, std::string outfile, bool discardunusual, int minelo);
+void parse_randstates(std::string filename, int maxgames, std::string outfile, bool discardunusual, int minelo);
 std::string get_file_contents(const char *filename);
 
 

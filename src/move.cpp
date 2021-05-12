@@ -83,6 +83,7 @@ void board::apply_move(move m, move_log *log) {
     log->castle_rights = castle_rights;
 
     fifty_move++;
+    num_moves++;
 
     int type = move_type(m);
     switch (type) {
@@ -261,6 +262,7 @@ void board::undo_move(move m, move_log *log) {
     fifty_move = log->fifty_move;
     ep_square = log->ep_square;
     castle_rights = log->castle_rights;
+    num_moves--;
 
     int type = move_type(m);
     switch (type) {

@@ -18,6 +18,9 @@
 typedef unsigned long U64;
 typedef uint16_t move;
 
+
+#define NPREDS 35
+
 const U64 AFILE = 0x0101010101010101;
 const U64 BFILE = 0x0202020202020202;
 const U64 CFILE = 0x0404040404040404;
@@ -177,6 +180,23 @@ static char piece_to_char(char piece) {
         res = static_cast<char>(toupper(static_cast<int>(res)));
     }
     return res;
+}
+
+static char side_to_char(int turn){
+    if(turn == WHITE){
+        return 'w';
+    }
+    return 'b';
+}
+
+static char rank_to_char(int rank){
+    char chars[] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+    return chars[rank];
+}
+
+static char file_to_char(int file){
+    char chars[] = {'1', '2', '3', '4', '5', '6', '7', '8'};
+    return chars[file];
 }
 
 #endif //EXATHOUGHT_CONSTS_H

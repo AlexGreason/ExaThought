@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <sstream>
 #include "consts.h"
 #include "board.h"
 #include "move.h"
@@ -11,6 +12,7 @@
 static int string_to_square(const char *str) {
     return str[0] == '-' ? -1 : sq_to_index((int)(str[1] - '1'), (int)(str[0] - 'a'));
 }
+
 
 void board::from_fen (const char *fen) {
     clear_board();
@@ -65,6 +67,67 @@ void board::from_fen (const char *fen) {
 
     token = strtok_r(nullptr, " ", &saveptr);
     fifty_move = static_cast<int>(strtol(token, nullptr, 10));
+
+    token = strtok_r(nullptr, " ", &saveptr);
+    num_moves = static_cast<int>(strtol(token, nullptr, 10));
+}
+
+
+std::string board::to_fen(){
+    std::string res;
+    std::stringstream strm(res);
+    for (int i = NRANKS - 1; i >= 0; i--) {
+        int runlen = 0;
+        for (int j = 0; j < NFILES; j++) {
+            int square = sq_to_index(i, j);
+            U64 piece = this->squares[square];
+            if (piece == EMPTY) {
+                runlen++;
+            } else {
+                if (runlen != 0) {
+                    strm << runlen;
+                    runlen = 0;
+                }
+                strm << piece_to_char(static_cast<char>(piece));
+            }
+        }
+        if (runlen != 0) {
+            strm << runlen;
+        }
+        if (i != 0) {
+            strm << "/";
+        }
+    }
+    strm << " ";
+    strm << side_to_char(this->turn);
+    strm << " ";
+    char chars[2][2] = {{'K', 'Q'}, {'k', 'q'}};
+    for(int color = WHITE; color <= BLACK; color++){
+        for(int side = KINGSIDE; side <= QUEENSIDE; side++){
+            if(this->castle_rights && CASTLEMASKS[color][side]){
+                strm << chars[color][side];
+            }
+        }
+    }
+    if(!this->castle_rights){
+        strm << "-";
+    }
+    strm << " ";
+    if(this->ep_square == -1) {
+        strm << "-";
+    } else {
+        int row = index_to_row(this->ep_square);
+        int file = index_to_file(this->ep_square);
+        // FIXME: somewhere the row and file semantics are mixed up
+        strm << rank_to_char(file);
+        strm << file_to_char(row);
+    }
+    strm << " ";
+    strm << this->fifty_move;
+    strm << " ";
+    strm << this->num_moves;
+
+    return strm.str();
 }
 
 void board::set_square(int color, int piece, int square) {

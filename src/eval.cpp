@@ -52,3 +52,46 @@ int board::max_rank(int type, bool color){
     }
     return max;
 }
+
+U64 pawn_span(int file){
+    U64 res = 0;
+    res |= FILES[file];
+    if(file > 0){
+        res |= FILES[file - 1];
+    }
+    if(file < NFILES - 1){
+        res |= FILES[file + 1];
+    }
+    return res;
+}
+
+int board::passed_pawns(bool color){
+    U64 pawns = this->pieces[PAWN] & this->colors[color];
+    U64 opp_pawns = this->pieces[PAWN] & this->colors[!color];
+    int res = 0;
+    while(pawns){
+        int i = pop_lsb(&pawns);
+        int f = index_to_file(i);
+        U64 span = pawn_span(f);
+        if(!(span & opp_pawns)){
+            res++;
+        }
+    }
+    return res;
+}
+
+U64 board::open_files(){
+    U64 res = 0;
+    for(U64 file : FILES) {
+        if(!(file & this->pieces[PAWN])){
+            res |= file;
+        }
+    }
+    return res;
+}
+
+int board::rook_on_open_file(bool color){
+    U64 open = this->open_files();
+    U64 open_rooks = open & this->pieces[ROOK] & this->colors[color];
+    return popcount(open_rooks);
+}

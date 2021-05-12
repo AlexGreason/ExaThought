@@ -46,7 +46,7 @@ game* parse_pgn(std::vector<std::string> *pgn, int minelo){
     bool goodenough = false;
     for(auto line : *pgn){
         if(goodenough || (res->headers.find("BlackElo") != res->headers.end())){
-            int whiteelo = stoi(res->headers["BlackElo"]);
+            int whiteelo = stoi(res->headers["WhiteElo"]);
             int blackelo = stoi(res->headers["BlackElo"]);
             int minimum = std::min(whiteelo, blackelo);
             if (minimum < minelo){
@@ -160,10 +160,11 @@ void parse_file(std::string filename, int maxgames, std::string outfile, bool di
             g = parse_pgn(&pgn, minelo);
             if((g->headers["Termination"])[0] == 'N' || !discardunusual){
                 //print_map(g->headers);
-                write_game_data(g, outfile);
+                //write_board_states(g, outfile);
+                write_random_state(g, outfile);
                 //std::cout << std::endl;
                 i++;
-                if(i % 10000 == 0 && i != 0){
+                if(i % 100 == 0 && i != 0){
                     std::cout << i << " " << j << std::endl;
                 }
             }
@@ -181,9 +182,55 @@ void parse_file(std::string filename, int maxgames, std::string outfile, bool di
     }
     g = parse_pgn(&pgn, minelo);
     if((g->headers["Termination"])[0] == 'N' || !discardunusual){
-        write_game_data(g, outfile);
+        write_board_states(g, outfile);
         std::cout << std::endl;
     }
     g->delete_game();
     pgn.clear();
+}
+
+void parse_randstates(std::string filename, int maxgames, std::string outfile, bool discardunusual, int minelo){
+    std::ifstream file(filename);
+    std::ofstream ofile(outfile);
+    std::string line;
+    int t = 0;
+    int v = 0;
+    while (std::getline(file, line)){
+        if (line.length() > 0) {
+            t++;
+            std::stringstream linestream(line);
+            std::string fen;
+            std::getline(linestream, fen, ',');
+            std::string whiteelo;
+            std::getline(linestream, whiteelo, ',');
+            std::string blackelo;
+            std::getline(linestream, blackelo, ',');
+            std::string result;
+            std::getline(linestream, result, ',');
+            if (stoi(whiteelo) > minelo && stoi(blackelo) > minelo){
+                v++;
+                board b{};
+                b.from_fen(fen.c_str());
+                //int a = b.passed_pawns(b.turn % 2);
+                //b.print_board();
+                //U64 open_files = b.open_files();
+                //print_bitboard(open_files);
+                int preds[NPREDS];
+                calc_board_data(&b, outfile, preds);
+                for(int j = 0; j < NPREDS; j++){
+                    ofile << preds[j];
+                    if (j != NPREDS - 1){
+                        ofile << ",";
+                    }
+                }
+                int res = stoi(result);
+                ofile << "," << whiteelo << "," << blackelo;
+                ofile << "," << res << std::endl;
+                if( v%100 == 0){
+                    std::cout << v << " " << t << std::endl;
+                }
+            }
+
+        }
+    }
 }

@@ -14,5 +14,6 @@
 #define mg_val(score) ((score)&mg_mask)
 #define eg_val(score) ((score)&eg_mask)
 
+U64 pawn_span(int file);
 
 #endif //EXATHOUGHT_EVAL_H
